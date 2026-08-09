@@ -28,8 +28,21 @@ export const config = {
   synthesisModel: process.env.OPENAI_SYNTHESIS_MODEL || (process.env.OPENAI_MODEL ?? "gpt-4o-mini"),
   embeddingModel: process.env.OPENAI_EMBEDDING_MODEL ?? "text-embedding-3-small",
 
-  /** Cosine similarity below which a retrieved chunk never enters context. */
-  groundingFloor: num("GROUNDING_SIMILARITY_FLOOR", 0.7),
+  /**
+   * Cosine similarity below which a retrieved chunk never enters context.
+   *
+   * Measured, not chosen. `npx tsx evals/calibrate.ts` sweeps the retrieval
+   * golden set and reports recall against leak at each candidate; 0.30–0.40 is
+   * the plateau where every in-corpus question still finds its document and no
+   * off-corpus question finds anything, so this is its midpoint.
+   *
+   * It is embedding-model-specific and not transferable. text-embedding-3-small
+   * puts genuine in-corpus matches at 0.40–0.71 and unrelated queries at
+   * 0.10–0.28; a round 0.70 — plausible, and what this project started with —
+   * scores 8% recall, i.e. it refuses nearly everything. Re-run the calibration
+   * when the corpus or the embedding model changes.
+   */
+  groundingFloor: num("GROUNDING_SIMILARITY_FLOOR", 0.35),
   /** Hard ceiling on the tool-calling loop inside a spoke. */
   maxToolIterations: num("AGENT_MAX_TOOL_ITERATIONS", 3),
   /** How many times a rejected tool call may be handed back for correction. */

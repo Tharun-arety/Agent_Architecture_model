@@ -65,7 +65,7 @@
       "query": "Is anything out of family on rig_2?",
       "expectIntent": "telemetry",
       "mustMention": ["span"],
-      "rubric": "Should identify that the temperature span degrades over the later part of the window and breaches its acceptance limit. Reporting only min/max/mean without noticing the trend is a failure. Must not present the figures as MAGNOTHERM's real measurements."
+      "rubric": "Should identify that the temperature span degrades over the later part of the window and breaches its 15.0 K acceptance floor. Reporting only min/max/mean without noticing the trend is a failure.\n\nNote for the judge: on this rig the span decays monotonically to the end of the window, so the LATEST reading and the MINIMUM are the same value (13.54 K). That is a property of the data, not a mistake by the assistant — an earlier judge run marked this answer down for 'confusing the latest with the minimum' when the two genuinely coincide."
     },
     {
       "id": "e2e-rig3-spike",
@@ -84,8 +84,8 @@
       "id": "e2e-rig-list",
       "query": "Which test rigs are there and what does each one bench?",
       "expectIntent": "telemetry",
-      "mustMention": ["rig_1", "rig_2", "rig_3"],
-      "rubric": "Should name all three rigs against their product lines."
+      "expectTool": "list_rigs",
+      "rubric": "Should name all three rigs against the product line each one benches. list_rigs is the correct tool here, not a telemetry query."
     },
     {
       "id": "e2e-rig-loose-name",

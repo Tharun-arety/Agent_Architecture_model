@@ -76,8 +76,21 @@ type Metric = {
    *  baseline, and pretending they do would make "out of family" meaningless. */
   base: Record<string, number>;
   noise: number;
+  /**
+   * Whether `noise` is in the metric's own units or a fraction of the base.
+   *
+   * Stated rather than inferred from the magnitude. An earlier version guessed
+   * — anything under 0.5 was treated as a fraction — which silently turned the
+   *  0.35 K span jitter into ±35% of the base, i.e. ±6.5 K on rig_3, and
+   * produced 102 limit breaches on a rig that is supposed to be clean on that
+   * metric. The seed's own breach summary is what caught it.
+   */
+  noiseKind: "absolute" | "relative";
+  /** Which rigs this limit is enforced on. A limit belongs to a product's
+   *  acceptance spec, not to a metric name. */
   limitLow?: number;
   limitHigh?: number;
+  limitAppliesTo?: string[];
 };
 
 const METRICS: Metric[] = [
@@ -86,27 +99,34 @@ const METRICS: Metric[] = [
     unit: "K",
     base: { rig_1: 12.4, rig_2: 16.1, rig_3: 18.7 },
     noise: 0.35,
-    limitLow: 15.0, // the ECLIPSE acceptance floor; rig_1 is not held to it
+    noiseKind: "absolute",
+    // The ECLIPSE acceptance floor. rig_1 is a 100 W bench and rig_3 a
+    // high-capacity one; neither is held to another product's spec.
+    limitLow: 15.0,
+    limitAppliesTo: ["rig_2"],
   },
   {
     metric: "cooling_capacity_W",
     unit: "W",
     base: { rig_1: 104, rig_2: 1015, rig_3: 126_500 },
     noise: 0.02,
-    limitLow: 0,
+    noiseKind: "relative",
   },
   {
     metric: "pressure_drop_mbar",
     unit: "mbar",
     base: { rig_1: 410, rig_2: 850, rig_3: 1180 },
     noise: 0.03,
+    noiseKind: "relative",
     limitHigh: 1400,
+    limitAppliesTo: ["rig_3"],
   },
   {
     metric: "magnetization_cycles_hz",
     unit: "Hz",
     base: { rig_1: 2.1, rig_2: 3.4, rig_3: 1.7 },
     noise: 0.04,
+    noiseKind: "relative",
   },
 ];
 
@@ -174,13 +194,11 @@ function generate(): Row[] {
         const base = spec.base[rig.rigId];
         if (base === undefined) continue;
 
-        const jitter = (random() - 0.5) * 2 * spec.noise * (spec.noise < 0.5 ? base : 1);
+        const amplitude = spec.noiseKind === "relative" ? spec.noise * base : spec.noise;
+        const jitter = (random() - 0.5) * 2 * amplitude;
         const value = base * anomalyFactor(rig.rigId, spec.metric, at) + jitter;
 
-        // rig_1 is a 100W bench and is not held to the ECLIPSE span floor.
-        // Applying one product's acceptance limit to another rig would
-        // manufacture failures that mean nothing.
-        const applies = !(spec.metric === "temperature_span_K" && rig.rigId === "rig_1");
+        const applies = !spec.limitAppliesTo || spec.limitAppliesTo.includes(rig.rigId);
         const limitLow = applies ? (spec.limitLow ?? null) : null;
         const limitHigh = applies ? (spec.limitHigh ?? null) : null;
 

@@ -1,0 +1,92 @@
+{
+  "generatedAt": "2026-08-09T20:53:21.343Z",
+  "tier": "full",
+  "model": "gpt-4o-mini",
+  "overall": 0.9593253968253969,
+  "metrics": [
+    {
+      "name": "guardrail_trigger",
+      "label": "Guardrail trigger rate",
+      "score": 1,
+      "passed": 18,
+      "total": 18
+    },
+    {
+      "name": "guardrail_specificity",
+      "label": "Guardrail specificity",
+      "score": 1,
+      "passed": 14,
+      "total": 14
+    },
+    {
+      "name": "secret_redaction",
+      "label": "Secret redaction",
+      "score": 1,
+      "passed": 4,
+      "total": 4
+    },
+    {
+      "name": "arg_rejection",
+      "label": "Tool argument rejection",
+      "score": 1,
+      "passed": 12,
+      "total": 12
+    },
+    {
+      "name": "arg_acceptance",
+      "label": "Tool argument acceptance",
+      "score": 1,
+      "passed": 7,
+      "total": 7
+    },
+    {
+      "name": "retrieval_recall",
+      "label": "Retrieval recall@6",
+      "score": 1,
+      "passed": 12,
+      "total": 12
+    },
+    {
+      "name": "grounding_refusal",
+      "label": "Grounding refusal (off-corpus)",
+      "score": 1,
+      "passed": 5,
+      "total": 5
+    },
+    {
+      "name": "routing_accuracy",
+      "label": "Routing accuracy",
+      "score": 1,
+      "passed": 22,
+      "total": 22
+    },
+    {
+      "name": "behaviour",
+      "label": "End-to-end behaviour",
+      "score": 0.9285714285714286,
+      "passed": 13,
+      "total": 14
+    },
+    {
+      "name": "tool_accuracy",
+      "label": "Tool-calling accuracy",
+      "score": 1,
+      "passed": 12,
+      "total": 12
+    },
+    {
+      "name": "faithfulness",
+      "label": "Faithfulness (LLM judge)",
+      "score": 0.8333333333333334,
+      "passed": 10,
+      "total": 12
+    },
+    {
+      "name": "relevance",
+      "label": "Answer relevance (LLM judge)",
+      "score": 0.75,
+      "passed": 9,
+      "total": 12
+    }
+  ]
+}

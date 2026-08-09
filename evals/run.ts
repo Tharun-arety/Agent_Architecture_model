@@ -333,6 +333,7 @@ type E2ECase = {
   expectRefusal?: boolean;
   expectRefusalContains?: string;
   expectToolRejection?: boolean;
+  expectTool?: string;
   mustMention?: string[];
   mustCite?: boolean;
   rubric?: string;
@@ -390,8 +391,14 @@ async function endToEndMetrics(): Promise<void> {
 
     // --- tool-calling accuracy --------------------------------------------
     if (testCase.expectIntent && testCase.expectIntent !== "general" && !testCase.expectRefusal) {
+      // Named per case where it matters. An earlier version derived it from the
+      // intent, which marked `list_rigs` wrong for "which rigs are there?" —
+      // the metric was measuring the test's assumption, not the agent.
       const expectedTool =
-        testCase.expectIntent === "knowledge" ? "search_engineering_knowledge" : "query_rig_telemetry";
+        testCase.expectTool ??
+        (testCase.expectIntent === "knowledge"
+          ? "search_engineering_knowledge"
+          : "query_rig_telemetry");
       const called = result.trace.toolAttempts.map((a) => a.name);
       const ok = testCase.expectToolRejection
         ? result.trace.toolAttempts.some((a) => !a.accepted)

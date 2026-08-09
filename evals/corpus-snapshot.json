@@ -1,0 +1,25 @@
+{
+  "$comment": "SHA-256 of each source document's extracted text at ingest time. The ingest refuses to re-embed drifted content without --force, because the eval golden set is written against these exact documents.",
+  "ingestedAt": "2026-08-09T20:39:40.404Z",
+  "embeddingModel": "text-embedding-3-small",
+  "chunkCount": 121,
+  "documents": {
+    "MT-TECH": "3b77952cd35b60edce75871a6f238d5453418d33f7c434d566583b67cfe81791",
+    "MT-FAQ": "e7a4eaf891469533f777a10b9102d1bd9d25362c3efedb35a0eb8b51da1ba6c9",
+    "MT-POLARIS": "6f1ee367e1a61aa022e46f87dcb5d11c6c30edce21fb58e923d6e42445be3f42",
+    "MT-HOME": "73c00a1087af4633f901549e7ed17c25e2ad981b2f000badd52678730937642e",
+    "HYLICAL": "b18e3bfca1744ee0448b7444470babea2052b32a3c80b1ba6fad693ff9c92ad8",
+    "EIT-STORY": "05e4375c07f75834687fb8e889bc4d152df4d96d3fb0e8b88a5c8a6a5a004147",
+    "HAUSER-MCC": "8b1989cff62a144b0300d5b4d3ecd8cf1201a10269a172c462132f109859b9ee",
+    "ATMO-R290": "280028fff7695e54483963da1fc151714d459535d5905b2b53139316bacd3c90",
+    "WIKI-MCE": "c9b560687dc33f45308f898fa13a17b1abd636194ae396c0f1fa477615a4f0c3",
+    "WIKI-ISO10007": "b5eab026fb0d2f69ca492b97ffc908141f0a98394c4cb4496df862b4a56ce1f7"
+  },
+  "unusable": [
+    {
+      "sourceRef": "SOG-HYLICAL",
+      "status": "fetch_failed",
+      "detail": "Forbidden"
+    }
+  ]
+}

@@ -5,6 +5,7 @@
  * functions can be called from the eval suite without standing up an agent.
  */
 
+import { config } from "@/lib/config";
 import { getSql, toVectorLiteral } from "@/lib/db/client";
 
 // ---------------------------------------------------------------------------
@@ -23,9 +24,26 @@ export type KnowledgeHit = {
 };
 
 /**
- * Cosine search over the corpus.
+ * At most this many passages from any one document in a single result set.
  *
- * Returns *everything* it finds with its score, including hits below the
+ * Without it the corpus's own shape decides the answer. `WIKI-MCE` is 41 of 121
+ * chunks, so a broad query — "magnetocaloric materials" — came back as five
+ * consecutive Wikipedia passages and the vendor documentation never appeared.
+ * The answer that followed described gadolinium, which is what an encyclopedia
+ * leads with, rather than the LaFeSi alloy the technology pages name. Every
+ * passage scored well; the retrieval was still wrong.
+ *
+ * Two is enough to keep a document that genuinely owns the answer while leaving
+ * room for a second opinion. `evals/cases/retrieval.json` covers both
+ * directions: recall must not drop, and off-corpus queries must still clear
+ * nothing.
+ */
+const MAX_CHUNKS_PER_SOURCE = 2;
+
+/**
+ * Cosine search over the corpus, diversified by source.
+ *
+ * Returns *everything* it selects with its score, including hits below the
  * grounding floor. Filtering happens in `guardrails/grounding.ts` rather than
  * here, so the inspector can show what was retrieved and then rejected — a
  * threshold you cannot see the other side of is a threshold nobody can
@@ -34,8 +52,25 @@ export type KnowledgeHit = {
 export async function searchKnowledge(
   queryVector: number[],
   limit: number,
+  /**
+   * The grounding floor, so diversification only trades between passages that
+   * will actually survive it.
+   *
+   * Passed in rather than read here because the floor belongs to the guardrail
+   * layer; this function needs to know it only to avoid spending a slot on a
+   * passage that layer is about to discard. Which is precisely the bug this
+   * parameter fixes: capping per source *before* the floor gave a slot to a
+   * 0.25-scoring passage from another document, and the floor then threw it
+   * away — so the query returned five usable passages instead of six, and the
+   * one displaced was the only chunk that answered the question.
+   */
+  floor: number = config.groundingFloor,
 ): Promise<KnowledgeHit[]> {
   const sql = getSql();
+
+  // Over-fetch, then diversify. Capping inside SQL would need a window function
+  // over the whole table on every query; ranking a few dozen rows in memory is
+  // cheaper and the logic is visible.
   const rows = (await sql.query(
     `SELECT source_ref, source_url, doc_title, doc_type, chunk_index, text,
             1 - (embedding <=> $1::vector) AS similarity
@@ -43,10 +78,10 @@ export async function searchKnowledge(
       WHERE embedding IS NOT NULL
       ORDER BY embedding <=> $1::vector
       LIMIT $2`,
-    [toVectorLiteral(queryVector), limit],
+    [toVectorLiteral(queryVector), limit * 4],
   )) as Record<string, unknown>[];
 
-  return rows.map((row) => ({
+  const candidates: KnowledgeHit[] = rows.map((row) => ({
     sourceRef: String(row.source_ref),
     sourceUrl: String(row.source_url),
     docTitle: String(row.doc_title),
@@ -55,6 +90,41 @@ export async function searchKnowledge(
     text: String(row.text),
     similarity: Math.round(Number(row.similarity) * 10_000) / 10_000,
   }));
+
+  // Only passages that clear the floor compete for slots. Everything below it
+  // is going to be discarded by `guardrails/grounding.ts` anyway, so letting one
+  // displace a usable passage costs recall and buys nothing.
+  const viable = candidates.filter((hit) => hit.similarity >= floor);
+  const weak = candidates.filter((hit) => hit.similarity < floor);
+
+  const perSource = new Map<string, number>();
+  const selected: KnowledgeHit[] = [];
+  const overflow: KnowledgeHit[] = [];
+
+  for (const hit of viable) {
+    const taken = perSource.get(hit.sourceRef) ?? 0;
+    if (taken < MAX_CHUNKS_PER_SOURCE && selected.length < limit) {
+      perSource.set(hit.sourceRef, taken + 1);
+      selected.push(hit);
+    } else {
+      overflow.push(hit);
+    }
+  }
+
+  // When one document is the only one with anything to say, the cap yields.
+  // Preventing monoculture is worth a slot; starving the answer is not.
+  for (const hit of overflow) {
+    if (selected.length >= limit) break;
+    selected.push(hit);
+  }
+
+  // Sub-floor passages are appended, never substituted, so the inspector can
+  // still show what was retrieved and rejected. They are trimmed hard: showing
+  // the three nearest misses makes the threshold legible, and showing twenty
+  // makes it noise.
+  selected.push(...weak.slice(0, 3));
+
+  return selected;
 }
 
 export async function corpusStats(): Promise<{ chunks: number; documents: number }> {

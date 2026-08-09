@@ -104,6 +104,30 @@ told no.
 `GROUNDING_SIMILARITY_FLOOR` never enter the context window, and if nothing
 clears it the turn refuses **without making the synthesis call at all**.
 
+**The floor is measured, not chosen.** `npx tsx evals/calibrate.ts` sweeps
+candidate values against the retrieval golden set and reports recall against
+leak at each:
+
+```
+floor   recall   leak
+0.275    100%   ████████████████████ LEAK 20%
+0.300    100%   ████████████████████
+0.350    100%   ████████████████████        ← configured
+0.400    100%   ████████████████████
+0.425     92%   ██████████████████··
+0.550     58%   ████████████········
+0.700      8%   ██··················
+```
+
+This project started with 0.70 — a plausible round number, and the one the
+original plan specified. It scores **8% recall**: for `text-embedding-3-small`
+over this corpus, genuine in-corpus matches land at 0.40–0.71 and unrelated
+queries at 0.10–0.28, so 0.70 refuses almost everything. 0.30–0.40 is the
+plateau where recall is total and nothing leaks; 0.35 is its midpoint.
+
+The number is specific to the embedding model **and** the corpus. Re-run the
+calibration when either changes.
+
 Vector search always returns its `limit` rows. Ask this corpus about something it
 has never heard of and it will still hand back the six least-unrelated passages,
 with no signal other than the score nobody looked at — and a model given six
@@ -166,6 +190,58 @@ prevent.
 
 Reports land in `evals/report/latest.{json,md}` and `public/eval-report.json`,
 which the header badge reads.
+
+### Baseline
+
+`gpt-4o-mini`, floor 0.35, 121 chunks from 10 documents — **95.9%, 138/144 cases
+across 12 metrics**:
+
+| Metric | Score |
+|---|---:|
+| Guardrail trigger rate | 100% (18/18) |
+| Guardrail specificity | 100% (14/14) |
+| Secret redaction | 100% (4/4) |
+| Tool argument rejection | 100% (12/12) |
+| Tool argument acceptance | 100% (7/7) |
+| Retrieval recall@6 | 100% (12/12) |
+| Grounding refusal (off-corpus) | 100% (5/5) |
+| Routing accuracy | 100% (22/22) |
+| Tool-calling accuracy | 100% (12/12) |
+| End-to-end behaviour | 93% (13/14) |
+| Faithfulness (LLM judge) | 83% (10/12) |
+| Answer relevance (LLM judge) | 75% (9/12) |
+
+The first run scored 85.6%. Three defects it found, and what each one actually
+was:
+
+1. **The grounding floor was wrong** — 0.70 gave 8% retrieval recall. Calibrated
+   to 0.35. *(the config was wrong)*
+2. **The router sent design questions to the telemetry agent.** "What pressure
+   does the hydraulic loop run at?" is a datasheet figure, but it contains a
+   metric word. The router prompt now distinguishes measurements from design
+   figures explicitly, and routing went from 95.5% to 100%. *(the prompt was
+   wrong)*
+3. **Retrieval was a monoculture.** `WIKI-MCE` is 41 of 121 chunks, so a broad
+   query returned five consecutive Wikipedia passages and the vendor
+   documentation never appeared — the answer described gadolinium instead of the
+   LaFeSi alloy. Fixed with a per-source cap of 2. *(the retrieval was wrong)*
+
+Fixing the cap then exposed a second-order bug worth its own note: capping
+per-source **before** applying the floor spent a slot on a 0.25-scoring passage
+that the floor then discarded, displacing the only chunk that answered an ISO
+10007 question. Diversification now competes only among passages that will
+survive the floor.
+
+**Two failures were the test's fault, not the system's**, and are recorded
+because that is the more useful thing to know:
+
+- The tool-accuracy metric derived the expected tool from the intent, so it
+  marked `list_rigs` wrong for *"which rigs are there?"* — it was measuring the
+  test's assumption.
+- The faithfulness judge marked down a correct answer for "confusing the latest
+  reading with the minimum" on `rig_2`. The probe showed both are 13.54 K: the
+  span decays monotonically to the end of the window, so they genuinely
+  coincide. The judge was confidently wrong.
 
 ---
 
@@ -303,7 +379,20 @@ scripts/
 - **The corpus is eleven documents.** Wide enough to make retrieval quality
   measurable, narrow enough that the grounding floor refuses often. That is the
   intended demonstration, not a gap.
-- **Judge models agree with themselves.** Faithfulness is scored by the same
-  model family that wrote the answer. The deterministic `mustMention` and
-  `mustCite` assertions sit underneath each judged case for that reason — a
-  substring cannot be talked round.
+- **The LLM judges are the least trustworthy part of this suite, and they are
+  the two lowest scores.** Faithfulness is graded by the same model family that
+  wrote the answer. Across runs the judges contradicted themselves on the same
+  ISO 10007 case — marking it down once for *not* listing the configuration
+  management disciplines and once for listing disciplines "not in the evidence" —
+  and marked one correct answer wrong outright (see the baseline notes). The
+  deterministic `mustMention`, `mustCite` and `expectTool` assertions sit
+  underneath every judged case for exactly this reason: a substring cannot be
+  talked round. Read the judged scores as a signal to go and look, not as a
+  measurement.
+- **Some agent behaviour is non-deterministic between runs.** The `rig_999`
+  bounds rejection fires reliably now, but before the telemetry prompt told the
+  agent to pass user input through rather than pre-judge it, the model sometimes
+  declined to call the tool at all — and a demo path that depends on the model
+  choosing to make a mistake is not a demonstration. Prompted behaviour is a
+  probability, so anything the guardrails need to prove has to be forced by the
+  prompt and then asserted by the suite.
