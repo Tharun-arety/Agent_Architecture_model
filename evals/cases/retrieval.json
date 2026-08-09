@@ -1,0 +1,102 @@
+{
+  "$comment": [
+    "Retrieval cases. Embedding calls only — no chat completions — so this runs",
+    "in the fast tier and costs fractions of a cent.",
+    "",
+    "Two things are measured here, and they pull in opposite directions:",
+    "",
+    "  recall@k   for in-corpus questions, does the right document come back?",
+    "  refusal    for off-corpus questions, does the grounding floor correctly",
+    "             return nothing rather than the least-unrelated passage?",
+    "",
+    "Raising the floor improves the second and hurts the first. The report prints",
+    "both, plus the score separation between them, which is what a floor should",
+    "be chosen from rather than picked round."
+  ],
+
+  "inCorpus": [
+    {
+      "id": "ret-amr",
+      "query": "How does the active magnetic regenerator create a temperature span?",
+      "expectAnyOf": ["MT-TECH", "WIKI-MCE"]
+    },
+    {
+      "id": "ret-lafesi",
+      "query": "What magnetocaloric material does Magnotherm use and why?",
+      "expectAnyOf": ["MT-TECH", "EIT-STORY"]
+    },
+    {
+      "id": "ret-coating",
+      "query": "Why is the iron-based material coated?",
+      "expectAnyOf": ["MT-TECH"]
+    },
+    {
+      "id": "ret-transfer-medium",
+      "query": "What fluid circulates through the regenerator and at what pressure?",
+      "expectAnyOf": ["MT-TECH", "MT-FAQ"]
+    },
+    {
+      "id": "ret-r290",
+      "query": "How does the efficiency compare with a propane R290 system?",
+      "expectAnyOf": ["ATMO-R290", "MT-FAQ", "MT-HOME"]
+    },
+    {
+      "id": "ret-polaris",
+      "query": "What is POLARIS and what cooling capacity does it have?",
+      "expectAnyOf": ["MT-POLARIS", "MT-HOME"]
+    },
+    {
+      "id": "ret-hylical",
+      "query": "What magnet is used for hydrogen liquefaction and to what temperature?",
+      "expectAnyOf": ["HYLICAL", "SOG-HYLICAL"]
+    },
+    {
+      "id": "ret-rare-earth",
+      "query": "Why avoid heavy rare earth elements in the permanent magnets?",
+      "expectAnyOf": ["EIT-STORY", "MT-TECH", "MT-FAQ"]
+    },
+    {
+      "id": "ret-curie",
+      "query": "What role does the Curie temperature play in magnetic refrigeration?",
+      "expectAnyOf": ["WIKI-MCE"]
+    },
+    {
+      "id": "ret-iso-change-control",
+      "query": "What does configuration change control require?",
+      "expectAnyOf": ["WIKI-ISO10007"]
+    },
+    {
+      "id": "ret-iso-status",
+      "query": "What is configuration status accounting?",
+      "expectAnyOf": ["WIKI-ISO10007"]
+    },
+    {
+      "id": "ret-retail",
+      "query": "How would magnetocaloric cooling be integrated into supermarket cabinets?",
+      "expectAnyOf": ["HAUSER-MCC", "ATMO-R290", "MT-HOME"]
+    }
+  ],
+
+  "offCorpus": [
+    {
+      "id": "off-sourdough",
+      "query": "What hydration ratio should I use for a sourdough starter?"
+    },
+    {
+      "id": "off-linkedlist",
+      "query": "How do I reverse a singly linked list in place?"
+    },
+    {
+      "id": "off-tax",
+      "query": "How is capital gains tax calculated in Germany?"
+    },
+    {
+      "id": "off-football",
+      "query": "Who won the 1994 FIFA World Cup final?"
+    },
+    {
+      "id": "off-guitar",
+      "query": "What is the standard tuning for a six string guitar?"
+    }
+  ]
+}

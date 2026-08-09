@@ -1,0 +1,92 @@
+{
+  "$comment": [
+    "Curated manifest of publicly reachable documents about magnetocaloric cooling.",
+    "",
+    "The repository commits this list, not the text. `npm run ingest` fetches each",
+    "URL at seed time, extracts the readable body, chunks it, embeds it, and stores",
+    "it in your own database — so no third-party prose is redistributed here, and",
+    "every answer the agent gives can cite the URL it actually came from.",
+    "",
+    "`sourceRef` is the short handle the agent cites and the eval golden set keys",
+    "on. Keep it stable: changing one invalidates the expected answers."
+  ],
+  "sources": [
+    {
+      "sourceRef": "MT-TECH",
+      "url": "https://www.magnotherm.com/technology",
+      "title": "Magnotherm — Technology",
+      "docType": "vendor_technical",
+      "note": "AMR principle, LaFeSi, NdFeB arrays, water/ethanol transfer fluid."
+    },
+    {
+      "sourceRef": "MT-FAQ",
+      "url": "https://www.magnotherm.com/faq",
+      "title": "Magnotherm — FAQ",
+      "docType": "vendor_technical",
+      "note": "Regulatory position, refrigerant comparison, efficiency claims."
+    },
+    {
+      "sourceRef": "MT-POLARIS",
+      "url": "https://www.magnotherm.com/polaris",
+      "title": "Magnotherm — POLARIS 100W",
+      "docType": "product_page",
+      "note": "First commercial platform; the 100W beverage cooler."
+    },
+    {
+      "sourceRef": "MT-HOME",
+      "url": "https://www.magnotherm.com/",
+      "title": "Magnotherm — Refrigerant-Free Cooling",
+      "docType": "product_page",
+      "note": "Product line overview across POLARIS / ECLIPSE / STELLAR."
+    },
+    {
+      "sourceRef": "HYLICAL",
+      "url": "https://www.hylical.eu/",
+      "title": "HyLICAL — Hydrogen Liquefaction by Magnetocaloric Cooling",
+      "docType": "project_page",
+      "note": "EU project: 19-tesla superconducting magnet, -253 C, TRL 3 to 5."
+    },
+    {
+      "sourceRef": "EIT-STORY",
+      "url": "https://www.eit.europa.eu/news-events/success-stories/magnotherm-revolutionising-refrigeration-through-magnetic-cooling",
+      "title": "EIT — Magnotherm: revolutionising refrigeration through magnetic cooling",
+      "docType": "press",
+      "note": "Independent write-up; heavy-rare-earth-free magnet sourcing rationale."
+    },
+    {
+      "sourceRef": "SOG-HYLICAL",
+      "url": "https://stateofgreen.com/en/news/hylical-superconductor-magnets-for-hydrogen-liquefaction/",
+      "title": "State of Green — HyLICAL: superconductor magnets for hydrogen liquefaction",
+      "docType": "press",
+      "note": "Efficiency and cost targets for the liquefaction pilot."
+    },
+    {
+      "sourceRef": "HAUSER-MCC",
+      "url": "https://www.hauser.com/en/blog/magnetocaloric-cooling-game-changer-industry",
+      "title": "Hauser — Magnetocaloric Cooling: a Game Changer for the Industry?",
+      "docType": "industry_analysis",
+      "note": "Integration partner's view on commercial refrigeration cabinets."
+    },
+    {
+      "sourceRef": "ATMO-R290",
+      "url": "https://naturalrefrigerants.com/news/atmo-europe-magnotherms-refrigerant-free-cooling-solution-15-more-energy-efficient-than-propane-says-ceo/",
+      "title": "ATMOsphere Europe — 15% more energy efficient than a comparable R290 unit",
+      "docType": "press",
+      "note": "The efficiency-vs-propane claim, with its stated basis."
+    },
+    {
+      "sourceRef": "WIKI-MCE",
+      "url": "https://en.wikipedia.org/wiki/Magnetic_refrigeration",
+      "title": "Magnetic refrigeration",
+      "docType": "reference",
+      "note": "Background physics: adiabatic demagnetisation, AMR cycle, Curie point."
+    },
+    {
+      "sourceRef": "WIKI-ISO10007",
+      "url": "https://en.wikipedia.org/wiki/ISO_10007",
+      "title": "ISO 10007 — Configuration management",
+      "docType": "standard_summary",
+      "note": "Configuration identification, change control, status accounting, audit."
+    }
+  ]
+}

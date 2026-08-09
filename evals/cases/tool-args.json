@@ -1,0 +1,129 @@
+{
+  "$comment": [
+    "Argument-guardrail cases. Deterministic — the schema and bounds gates are",
+    "called directly, with no model in the loop, so these run in the fast tier.",
+    "",
+    "The `valid` half matters as much as the `invalid` half: a bounds check that",
+    "rejects legitimate arguments is worse than none, because the model burns its",
+    "retry budget being told no and the user gets a refusal for a good question."
+  ],
+
+  "invalid": [
+    {
+      "id": "arg-rig-nonexistent",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_999" },
+      "expect": "args.bounds",
+      "because": "schema-valid string, but no such rig exists"
+    },
+    {
+      "id": "arg-rig-typo",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig2" },
+      "expect": "args.bounds",
+      "because": "missing underscore — a plausible model slip"
+    },
+    {
+      "id": "arg-date-far-future",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_2", "from": "2099-01-01", "to": "2099-12-31" },
+      "expect": "args.bounds",
+      "because": "outside the recorded window; would return silence, not an answer"
+    },
+    {
+      "id": "arg-date-before-window",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_1", "from": "2001-01-01" },
+      "expect": "args.bounds"
+    },
+    {
+      "id": "arg-date-unparseable",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_2", "from": "last Tuesday" },
+      "expect": "args.bounds"
+    },
+    {
+      "id": "arg-date-reversed",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_2", "from": "2026-07-20", "to": "2026-06-01" },
+      "expect": "args.bounds"
+    },
+    {
+      "id": "arg-unknown-metric",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_2", "metrics": ["entropy_change_J_kgK"] },
+      "expect": "args.schema",
+      "because": "the schema enumerates the metric names, so this fails at gate 1"
+    },
+    {
+      "id": "arg-missing-required",
+      "tool": "query_rig_telemetry",
+      "args": {},
+      "expect": "args.schema"
+    },
+    {
+      "id": "arg-wrong-type",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": 2 },
+      "expect": "args.schema",
+      "because": "coerceTypes is off on purpose — a wrong type is a signal, not noise"
+    },
+    {
+      "id": "arg-extra-property",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_2", "limit": 5 },
+      "expect": "args.schema",
+      "because": "additionalProperties:false — an invented parameter is a hallucinated contract"
+    },
+    {
+      "id": "arg-knowledge-empty",
+      "tool": "search_engineering_knowledge",
+      "args": { "query": "  " },
+      "expect": "args.bounds"
+    },
+    {
+      "id": "arg-knowledge-limit-type",
+      "tool": "search_engineering_knowledge",
+      "args": { "query": "AMR geometry", "limit": "six" },
+      "expect": "args.schema"
+    }
+  ],
+
+  "valid": [
+    {
+      "id": "ok-rig-only",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_2" }
+    },
+    {
+      "id": "ok-rig-window",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_2", "from": "2026-07-01", "to": "2026-07-31" }
+    },
+    {
+      "id": "ok-rig-metrics",
+      "tool": "query_rig_telemetry",
+      "args": { "rig_id": "rig_3", "metrics": ["pressure_drop_mbar"] }
+    },
+    {
+      "id": "ok-knowledge",
+      "tool": "search_engineering_knowledge",
+      "args": { "query": "active magnetic regenerator temperature span" }
+    },
+    {
+      "id": "ok-knowledge-limit",
+      "tool": "search_engineering_knowledge",
+      "args": { "query": "LaFeSi coating corrosion", "limit": 8 }
+    },
+    {
+      "id": "ok-knowledge-clamped",
+      "tool": "search_engineering_knowledge",
+      "args": { "query": "hydrogen liquefaction", "limit": 10 }
+    },
+    {
+      "id": "ok-list-rigs",
+      "tool": "list_rigs",
+      "args": {}
+    }
+  ]
+}

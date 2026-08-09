@@ -1,0 +1,69 @@
+{
+  "$comment": [
+    "Routing cases. One router call each — the cheapest model-backed metric, but",
+    "still a chat completion, so this is full tier only.",
+    "",
+    "The hard cases are the near-misses at the bottom. 'Why did the span drop on",
+    "rig 2' and 'why does an AMR produce a span at all' share almost every word",
+    "and route to different agents, because one asks for measurements and the",
+    "other for principle. A router that gets the easy twenty right and these six",
+    "wrong is a router that keys on vocabulary instead of intent."
+  ],
+
+  "cases": [
+    { "id": "rt-k-1", "query": "How does an active magnetic regenerator work?", "expect": "knowledge" },
+    { "id": "rt-k-2", "query": "What is the magnetocaloric effect?", "expect": "knowledge" },
+    { "id": "rt-k-3", "query": "Why does Magnotherm coat the LaFeSi material?", "expect": "knowledge" },
+    { "id": "rt-k-4", "query": "What does ISO 10007 say about configuration audits?", "expect": "knowledge" },
+    { "id": "rt-k-5", "query": "How efficient is magnetocaloric cooling compared to propane?", "expect": "knowledge" },
+    { "id": "rt-k-6", "query": "What temperature does HyLICAL liquefy hydrogen at?", "expect": "knowledge" },
+    { "id": "rt-k-7", "query": "What is the difference between POLARIS and ECLIPSE?", "expect": "knowledge" },
+
+    { "id": "rt-t-1", "query": "Show me the temperature span on rig_2", "expect": "telemetry" },
+    { "id": "rt-t-2", "query": "Is anything out of family on rig 3?", "expect": "telemetry" },
+    { "id": "rt-t-3", "query": "What was the pressure drop in June on the STELLAR bench?", "expect": "telemetry" },
+    { "id": "rt-t-4", "query": "Which rig has readings that breached their limits?", "expect": "telemetry" },
+    { "id": "rt-t-5", "query": "Plot the cooling capacity for the ECLIPSE bench last month", "expect": "telemetry" },
+    { "id": "rt-t-6", "query": "What is the latest magnetisation frequency measured on rig_1?", "expect": "telemetry" },
+
+    { "id": "rt-g-1", "query": "Hello", "expect": "general" },
+    { "id": "rt-g-2", "query": "What can you help me with?", "expect": "general" },
+    { "id": "rt-g-3", "query": "What data do you have access to?", "expect": "general" },
+
+    {
+      "id": "rt-hard-1",
+      "query": "Why did the temperature span drop on rig 2?",
+      "expect": "telemetry",
+      "because": "asks about a measured change — needs the readings, not the principle"
+    },
+    {
+      "id": "rt-hard-2",
+      "query": "Why does an AMR produce a temperature span at all?",
+      "expect": "knowledge",
+      "because": "asks for the mechanism — near-identical wording, opposite answer"
+    },
+    {
+      "id": "rt-hard-3",
+      "query": "What is the acceptance limit on temperature span, and is rig_2 meeting it?",
+      "expect": "telemetry",
+      "because": "the second clause needs data; the limit alone would not"
+    },
+    {
+      "id": "rt-hard-4",
+      "query": "What pressure does the hydraulic loop run at?",
+      "expect": "knowledge",
+      "because": "a design figure from the documents, not a rig reading"
+    },
+    {
+      "id": "rt-hard-5",
+      "query": "How many test rigs are there and what do they bench?",
+      "expect": "telemetry",
+      "because": "the rig registry lives in the database, not the corpus"
+    },
+    {
+      "id": "rt-hard-6",
+      "query": "Has the cooling capacity degraded since the rigs were commissioned?",
+      "expect": "telemetry"
+    }
+  ]
+}
