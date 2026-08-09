@@ -127,6 +127,41 @@ export async function searchKnowledge(
   return selected;
 }
 
+export type CorpusDocument = {
+  sourceRef: string;
+  sourceUrl: string;
+  docTitle: string;
+  docType: string;
+  chunks: number;
+  fetchedAt: string;
+};
+
+/** The corpus inventory, for the first-paint dashboard.
+ *
+ *  A visitor who has not asked anything yet should still be able to see what
+ *  this system can and cannot answer from. "Ten documents, and here they are"
+ *  is a far more honest opening than an empty pane that implies unlimited
+ *  scope. */
+export async function corpusDocuments(): Promise<CorpusDocument[]> {
+  const sql = getSql();
+  const rows = (await sql.query(
+    `SELECT source_ref, source_url, doc_title, doc_type,
+            count(*)::int AS chunks, max(fetched_at) AS fetched_at
+       FROM knowledge_chunk
+      GROUP BY source_ref, source_url, doc_title, doc_type
+      ORDER BY count(*) DESC`,
+  )) as Record<string, unknown>[];
+
+  return rows.map((row) => ({
+    sourceRef: String(row.source_ref),
+    sourceUrl: String(row.source_url),
+    docTitle: String(row.doc_title),
+    docType: String(row.doc_type),
+    chunks: Number(row.chunks),
+    fetchedAt: new Date(String(row.fetched_at)).toISOString(),
+  }));
+}
+
 export async function corpusStats(): Promise<{ chunks: number; documents: number }> {
   const sql = getSql();
   const rows = (await sql.query(

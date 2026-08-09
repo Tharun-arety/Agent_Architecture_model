@@ -41,11 +41,17 @@ export function TelemetryChart({ data }: { data: TelemetryResult }) {
   const metrics = data.summaries.map((s) => s.metric);
   const [selected, setActive] = React.useState<string | null>(null);
 
+  // Open on a metric that has something to show. Metrics arrive in alphabetical
+  // order, which puts cooling capacity first — a flat line with noise on it, and
+  // the least informative thing a visitor could land on. A limit breach is the
+  // reason someone opened this pane.
+  const fallback = data.summaries.find((s) => s.breaches > 0)?.metric ?? metrics[0] ?? "";
+
   // Derived during render rather than synced by an effect. A new rig query can
   // return a different metric set, and a stale selection would render an empty
   // chart; falling back here means the tab bar and the plot cannot disagree
   // even for one frame.
-  const active = selected && metrics.includes(selected) ? selected : (metrics[0] ?? "");
+  const active = selected && metrics.includes(selected) ? selected : fallback;
 
   const summary = data.summaries.find((s) => s.metric === active);
   const series = data.series[active] ?? [];

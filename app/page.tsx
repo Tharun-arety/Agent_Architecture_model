@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Activity, FlaskConical, ScanEye } from "lucide-react";
+import { Activity, Loader2, ScanEye } from "lucide-react";
 
 import { ChatPanel } from "@/components/ChatPanel";
-import { EvalBadge } from "@/components/EvalBadge";
 import { CitationList } from "@/components/CitationList";
+import { CorpusPanel } from "@/components/CorpusPanel";
+import { EvalBadge } from "@/components/EvalBadge";
 import { TelemetryChart } from "@/components/TelemetryChart";
+import type { CorpusDocument } from "@/lib/db/queries";
 import type { DashboardState } from "@/lib/types";
 
 type Health = {
@@ -18,19 +20,41 @@ type Health = {
   detail?: string;
 };
 
+/**
+ * Listed from the ingest's own record rather than hard-coded: this source is in
+ * `scripts/sources.json` and returns 403 to a scripted request, so it never
+ * makes it into the database. Surfacing it is the point — a corpus page that
+ * shows only what succeeded tells a tidier story than the ingest actually had.
+ */
+const UNREACHABLE = [{ sourceRef: "SOG-HYLICAL", detail: "HTTP 403 Forbidden" }];
+
 export default function Page() {
   const [dashboard, setDashboard] = React.useState<DashboardState>({
     telemetry: null,
     knowledge: null,
   });
+  const [corpus, setCorpus] = React.useState<CorpusDocument[] | null>(null);
   const [inspect, setInspect] = React.useState(true);
   const [health, setHealth] = React.useState<Health | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     fetch("/api/health")
       .then((response) => response.json())
       .then(setHealth)
       .catch(() => setHealth(null));
+
+    // First paint without a model call. The dashboard shows the default rig and
+    // the corpus inventory immediately, so someone who has asked nothing still
+    // sees exactly what this system holds.
+    fetch("/api/overview")
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((data: { telemetry: DashboardState["telemetry"]; corpus: CorpusDocument[] }) => {
+        setDashboard((prev) => ({ ...prev, telemetry: prev.telemetry ?? data.telemetry }));
+        setCorpus(data.corpus);
+      })
+      .catch(() => setCorpus([]))
+      .finally(() => setLoading(false));
   }, []);
 
   const applyDashboard = React.useCallback(
@@ -60,9 +84,7 @@ export default function Page() {
               title={health.detail ?? "All providers configured"}
             >
               <span
-                className={`size-1.5 rounded-full ${
-                  health.status === "ok" ? "bg-ok" : "bg-warn"
-                }`}
+                className={`size-1.5 rounded-full ${health.status === "ok" ? "bg-ok" : "bg-warn"}`}
               />
               <span className="font-mono">{health.model}</span>
               {health.corpus && (
@@ -93,22 +115,19 @@ export default function Page() {
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1fr_380px]">
-        <main className="min-h-0 overflow-y-auto p-4">
-          {dashboard.telemetry || dashboard.knowledge ? (
-            <div className="grid h-full min-h-0 gap-4">
-              {dashboard.telemetry && (
-                <div className="min-h-[380px]">
-                  <TelemetryChart data={dashboard.telemetry} />
-                </div>
-              )}
-              {dashboard.knowledge && (
-                <div className="min-h-[320px]">
-                  <CitationList data={dashboard.knowledge} />
-                </div>
-              )}
-            </div>
+        <main className="grid min-h-0 grid-rows-[minmax(340px,3fr)_minmax(260px,2fr)] gap-4 overflow-y-auto p-4">
+          {dashboard.telemetry ? (
+            <TelemetryChart data={dashboard.telemetry} />
           ) : (
-            <EmptyState health={health} />
+            <Placeholder loading={loading} label="test-rig telemetry" />
+          )}
+
+          {dashboard.knowledge ? (
+            <CitationList data={dashboard.knowledge} />
+          ) : corpus && corpus.length > 0 ? (
+            <CorpusPanel documents={corpus} unreachable={UNREACHABLE} />
+          ) : (
+            <Placeholder loading={loading} label="knowledge corpus" detail={health?.detail} />
           )}
         </main>
 
@@ -120,47 +139,28 @@ export default function Page() {
   );
 }
 
-function EmptyState({ health }: { health: Health | null }) {
+function Placeholder({
+  loading,
+  label,
+  detail,
+}: {
+  loading: boolean;
+  label: string;
+  detail?: string;
+}) {
   return (
-    <div className="border-border flex h-full min-h-[400px] items-center justify-center rounded-lg border border-dashed p-8">
-      <div className="max-w-lg space-y-5">
-        <div>
-          <h2 className="text-sm font-semibold">Two agents, one guardrail pipeline</h2>
-          <p className="text-fg-muted mt-1.5 text-xs leading-relaxed">
-            A <strong className="text-fg">Knowledge agent</strong> retrieves from real public
-            documents about magnetocaloric cooling. A{" "}
-            <strong className="text-fg">Telemetry agent</strong> queries synthetic test-rig
-            readings. Every turn passes input guardrails before any model call, tool-argument
-            guardrails before any query, and a similarity floor before any answer.
-          </p>
-        </div>
-
-        <ul className="text-fg-muted space-y-2 text-xs">
-          {[
-            ["Input", "Secrets redacted, injections refused, off-topic questions declined — all before the first model call."],
-            ["Arguments", "Every tool call validated against the same JSON Schema the model was given, plus bounds only the database knows."],
-            ["Grounding", "Passages below the similarity floor never enter the context window. Nothing above it means a refusal, not a guess."],
-          ].map(([label, body]) => (
-            <li key={label} className="flex gap-2.5">
-              <span className="text-accent w-20 shrink-0 font-mono text-[11px]">{label}</span>
-              <span className="min-w-0 flex-1 leading-relaxed">{body}</span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="border-border text-fg-subtle flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-3 text-[11px]">
-          <span className="flex items-center gap-1.5">
-            <FlaskConical className="size-3" />
-            Rig telemetry is synthetic
-          </span>
-          {health?.corpus && (
-            <span className="tnum">
-              {health.corpus.documents} public documents · {health.corpus.chunks} chunks indexed
-            </span>
-          )}
-          {health?.detail && <span className="text-warn">{health.detail}</span>}
-        </div>
-      </div>
+    <div className="border-border text-fg-subtle flex items-center justify-center rounded-lg border border-dashed p-6 text-xs">
+      {loading ? (
+        <span className="flex items-center gap-2">
+          <Loader2 className="size-3.5 animate-spin" />
+          Loading {label}…
+        </span>
+      ) : (
+        <span className="max-w-sm text-center leading-relaxed">
+          No {label} available.{" "}
+          {detail ?? "Check DATABASE_URL, then run `npm run ingest` and `npm run seed:telemetry`."}
+        </span>
+      )}
     </div>
   );
 }

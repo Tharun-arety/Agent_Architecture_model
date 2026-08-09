@@ -321,12 +321,14 @@ is a claim rather than a demonstration.
 ```
 app/
   api/chat/route.ts       SSE endpoint, Node runtime, IP rate-limited
+  api/overview/route.ts   first-paint dashboard data, no model call
   api/health/route.ts     what is configured vs. what is actually loaded
   page.tsx                dashboard + chat shell
 components/
   ChatPanel.tsx           streaming chat
   InspectorDrawer.tsx     latency, cost, routing, guardrails, retrieval scores
   TelemetryChart.tsx      structured payload → chart, never parsed from prose
+  CorpusPanel.tsx         what the corpus holds, before anything is asked
   CitationList.tsx        the passages the answer was actually built from
 lib/
   ai/loop.ts              the hand-rolled tool-calling loop
@@ -350,6 +352,16 @@ scripts/
 - **Structured tool payloads travel on their own SSE frame.** The chart and the
   citation list read the same JSON the model read. The UI never parses prose to
   find numbers, so the two cannot disagree.
+- **The dashboard paints before anyone asks anything.** `/api/overview` is a
+  plain database read — no model call — showing the default rig's chart and the
+  full corpus inventory. An empty pane implies unlimited scope, which is the
+  opposite of what a grounded system should communicate; "ten documents, and
+  here they are" is the honest opening. The corpus panel lists the source that
+  403s at ingest too, because a page showing only what succeeded tells a tidier
+  story than the ingest actually had.
+- **The telemetry chart opens on a metric with a limit breach.** Metrics arrive
+  alphabetically, which puts cooling capacity first — a flat line with noise on
+  it. A breach is the reason someone opened the pane.
 - **Each agent sees only its own domain's tools.** A node that could call
   anything makes the routing decision decorative.
 - **Guardrail verdicts are recorded whether they pass or fail.** A pipeline that
