@@ -4,7 +4,7 @@ import * as React from "react";
 import { Activity, Loader2, ScanEye } from "lucide-react";
 
 import { ChatPanel } from "@/components/ChatPanel";
-import { CitationList } from "@/components/CitationList";
+import { CitationList, type CitationFocus } from "@/components/CitationList";
 import { CorpusPanel } from "@/components/CorpusPanel";
 import { EvalBadge } from "@/components/EvalBadge";
 import { TelemetryChart } from "@/components/TelemetryChart";
@@ -59,6 +59,15 @@ export default function Page() {
 
   const applyDashboard = React.useCallback(
     (next: Partial<DashboardState>) => setDashboard((prev) => ({ ...prev, ...next })),
+    [],
+  );
+
+  // The nonce is what makes clicking the same citation twice scroll back to it
+  // rather than being a no-op because the ref did not change.
+  const [citationFocus, setCitationFocus] = React.useState<CitationFocus>(null);
+  const focusCitation = React.useCallback(
+    (sourceRef: string) =>
+      setCitationFocus((prev) => ({ sourceRef, nonce: (prev?.nonce ?? 0) + 1 })),
     [],
   );
 
@@ -123,7 +132,7 @@ export default function Page() {
           )}
 
           {dashboard.knowledge ? (
-            <CitationList data={dashboard.knowledge} />
+            <CitationList data={dashboard.knowledge} focus={citationFocus} />
           ) : corpus && corpus.length > 0 ? (
             <CorpusPanel documents={corpus} unreachable={UNREACHABLE} />
           ) : (
@@ -132,7 +141,7 @@ export default function Page() {
         </main>
 
         <aside className="min-h-0">
-          <ChatPanel inspect={inspect} onDashboard={applyDashboard} />
+          <ChatPanel inspect={inspect} onDashboard={applyDashboard} onCite={focusCitation} />
         </aside>
       </div>
     </div>

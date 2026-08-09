@@ -37,14 +37,15 @@ User query
 │   ARG GUARDRAILS   │   + bounds only the database knows (does rig_2 exist?)
 └─────────┬──────────┘   rejection → the model reads its own error and retries
           ▼
-┌────────────────────┐   cosine floor 0.70 · nothing above it → refuse, and
-│ GROUNDING GUARDRAIL│   skip the synthesis call entirely
+┌────────────────────┐   cosine floor 0.35 (calibrated, not guessed) · nothing
+│ GROUNDING GUARDRAIL│   above it → refuse, and skip the synthesis call entirely
 └─────────┬──────────┘
           ▼
      Synthesizer ──► SSE ──► Chat + Inspector
                               │
-                              └─► citation check: every cited source must
-                                  have actually been retrieved
+                              └─► citation check: every cited source must have
+                                  actually been retrieved — and each one is a
+                                  link to the passage it came from
 ```
 
 ---
@@ -139,6 +140,15 @@ one that was retrieved. This does not catch a fabricated claim attributed to a
 real document — that needs a judge, and it is what the offline faithfulness eval
 is for. It catches the cheaper failure: citing `ECO-24-005` because that is the
 shape a citation takes.
+
+Its verdict is rendered inline rather than only in the inspector. Every
+`[SOURCE-REF]` in an answer is a button that opens the passage it came from in
+the evidence pane — where a source contributed several passages, the
+highest-scoring one, since that is the one most likely to have carried the
+claim. A handle the retrieval did **not** return is not made a link: it renders
+in the danger colour with a `?`, in the sentence making the claim. A citation
+you cannot follow asks the reader to take the grounding on trust, which is the
+one thing this project is built to avoid.
 
 ---
 
@@ -329,6 +339,7 @@ components/
   InspectorDrawer.tsx     latency, cost, routing, guardrails, retrieval scores
   TelemetryChart.tsx      structured payload → chart, never parsed from prose
   CorpusPanel.tsx         what the corpus holds, before anything is asked
+  AnswerText.tsx          renders [SOURCE-REF] citations as links into the evidence
   CitationList.tsx        the passages the answer was actually built from
 lib/
   ai/loop.ts              the hand-rolled tool-calling loop
