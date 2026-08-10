@@ -6,13 +6,12 @@
  *
  * A citation you cannot follow asks the reader to take the grounding on trust,
  * which is the one thing this project is built to avoid. Clicking one scrolls
- * the retrieved-evidence list to that passage and opens it, so "the answer says
- * X because MT-TECH says X" is one click to verify rather than a claim.
+ * the evidence pane to that passage and opens it, so "the answer says X because
+ * MT-TECH says X" is one click to verify rather than a claim.
  *
- * A reference the retrieval did not return is rendered in the danger colour
- * instead of being made a link. That is the `grounding.citations` guardrail's
- * verdict made visible at the point it matters — inline, in the sentence making
- * the claim, rather than only in the inspector.
+ * A reference the retrieval did not return is not made a link. It renders in
+ * the breach colour with a `?` — the `grounding.citations` verdict placed in
+ * the sentence making the claim, rather than only in the inspector.
  */
 
 import * as React from "react";
@@ -53,7 +52,7 @@ export function AnswerText({
           type="button"
           onClick={() => onCite?.(ref.toUpperCase())}
           title={`Show the ${ref} passage this came from`}
-          className="text-accent hover:bg-accent/15 border-accent/30 mx-0.5 rounded border px-1 py-px font-mono text-[10px] align-baseline transition"
+          className="text-cold border-cold/40 hover:bg-cold/15 mx-0.5 cursor-pointer border-b border-dashed px-0.5 align-baseline font-mono text-[10px] tracking-wide transition-colors"
         >
           {ref}
         </button>
@@ -61,7 +60,7 @@ export function AnswerText({
         <span
           key={`cite-${key++}`}
           title="This source was not among the passages retrieved for this answer."
-          className="text-danger border-danger/40 bg-danger/10 mx-0.5 rounded border px-1 py-px font-mono text-[10px] align-baseline"
+          className="text-hot border-hot/50 bg-hot/10 mx-0.5 border px-1 align-baseline font-mono text-[10px] tracking-wide"
         >
           {ref} ?
         </span>

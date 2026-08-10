@@ -236,6 +236,30 @@ export async function runAgent(options: {
           // Sub-floor passages never enter the context window. This is the
           // substitution that makes the floor real rather than advisory.
           modelFacing = { query: (payload as { query: string }).query, hits: grounding.kept };
+
+          // The interface is shown *more* than the model is: the rejected
+          // passages travel on the frame so the evidence pane can draw the
+          // floor with something on the other side of it. A threshold you
+          // cannot see the far side of is a threshold nobody can challenge —
+          // but the model still only ever reads what cleared it.
+          await emit({
+            event: "tool_result",
+            data: {
+              tool: call.name,
+              payload: {
+                ...(modelFacing as object),
+                floor: config.groundingFloor,
+                rejected: grounding.rejected,
+              },
+            },
+          });
+          payloads.push({ tool: call.name, payload: modelFacing });
+          messages.push({
+            role: "tool",
+            tool_call_id: call.id,
+            content: JSON.stringify(modelFacing).slice(0, 12_000),
+          });
+          continue;
         }
 
         payloads.push({ tool: call.name, payload: modelFacing });

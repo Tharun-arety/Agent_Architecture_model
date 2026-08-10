@@ -28,7 +28,19 @@ export type ChatTurn = {
   guardrails?: GuardrailVerdict[];
 };
 
-export type KnowledgePayload = { query: string; hits: KnowledgeHit[] };
+/**
+ * What the evidence pane receives — deliberately more than the model does.
+ *
+ * `hits` cleared the grounding floor and reached the transcript. `rejected` did
+ * not, and travels only to the interface so the floor can be drawn with
+ * something visible on the far side of it.
+ */
+export type KnowledgePayload = {
+  query: string;
+  hits: KnowledgeHit[];
+  floor?: number;
+  rejected?: KnowledgeHit[];
+};
 
 export type DashboardState = {
   telemetry: TelemetryResult | null;

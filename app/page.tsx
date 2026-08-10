@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Activity, Loader2, ScanEye } from "lucide-react";
+import { Loader2, ScanEye } from "lucide-react";
 
 import { ChatPanel } from "@/components/ChatPanel";
 import { CitationList, type CitationFocus } from "@/components/CitationList";
@@ -21,12 +21,13 @@ type Health = {
 };
 
 /**
- * Listed from the ingest's own record rather than hard-coded: this source is in
- * `scripts/sources.json` and returns 403 to a scripted request, so it never
- * makes it into the database. Surfacing it is the point — a corpus page that
- * shows only what succeeded tells a tidier story than the ingest actually had.
+ * In `scripts/sources.json` and returns 403 to a scripted request, so it never
+ * reaches the database. Surfaced deliberately — a corpus panel showing only what
+ * succeeded tells a tidier story than the ingest actually had.
  */
 const UNREACHABLE = [{ sourceRef: "SOG-HYLICAL", detail: "HTTP 403 Forbidden" }];
+
+const FALLBACK_FLOOR = 0.35;
 
 export default function Page() {
   const [dashboard, setDashboard] = React.useState<DashboardState>({
@@ -44,9 +45,8 @@ export default function Page() {
       .then(setHealth)
       .catch(() => setHealth(null));
 
-    // First paint without a model call. The dashboard shows the default rig and
-    // the corpus inventory immediately, so someone who has asked nothing still
-    // sees exactly what this system holds.
+    // First paint without a model call. Someone who has asked nothing still sees
+    // exactly what this system holds.
     fetch("/api/overview")
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((data: { telemetry: DashboardState["telemetry"]; corpus: CorpusDocument[] }) => {
@@ -71,79 +71,126 @@ export default function Page() {
     [],
   );
 
+  const floor = dashboard.knowledge?.floor ?? health?.groundingFloor ?? FALLBACK_FLOOR;
+
   return (
     <div className="flex h-dvh flex-col">
-      <header className="border-border bg-surface flex shrink-0 flex-wrap items-center gap-3 border-b px-4 py-2.5">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="bg-accent/10 text-accent rounded-md p-1.5">
-            <Activity className="size-4" />
-          </span>
+      {/* The faceplate header: identity, then the instrument's own settings as
+          a live readout strip. What the machine is currently configured to do
+          belongs on its front panel, not in a menu. */}
+      <header className="border-rule bg-panel flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b px-4 py-2">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Mark />
           <div className="min-w-0">
-            <h1 className="truncate text-sm font-semibold">Magnetocaloric Engineering Agent</h1>
-            <p className="text-fg-subtle truncate text-[11px]">
-              Guardrailed RAG + telemetry, with the evidence on show
+            <h1 className="truncate text-[13px] leading-tight font-semibold tracking-tight">
+              Magnetocaloric Engineering Agent
+            </h1>
+            <p className="text-faint truncate text-[10px] leading-tight">
+              Retrieval and telemetry, with the evidence on show
             </p>
           </div>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          {health && (
+        {health && (
+          <dl className="text-faint hidden items-center gap-4 font-mono text-[10px] lg:flex">
+            <Stat label="model" value={health.model} />
+            {health.corpus && (
+              <Stat label="corpus" value={`${health.corpus.chunks}/${health.corpus.documents}`} />
+            )}
+            <Stat label="floor" value={health.groundingFloor.toFixed(2)} />
             <span
-              className="text-fg-subtle hidden items-center gap-2 text-[11px] md:flex"
+              className={`size-1.5 shrink-0 ${health.status === "ok" ? "bg-cold" : "bg-warm"}`}
               title={health.detail ?? "All providers configured"}
-            >
-              <span
-                className={`size-1.5 rounded-full ${health.status === "ok" ? "bg-ok" : "bg-warn"}`}
-              />
-              <span className="font-mono">{health.model}</span>
-              {health.corpus && (
-                <span className="tnum">
-                  {health.corpus.chunks} chunks / {health.corpus.documents} docs
-                </span>
-              )}
-              <span className="tnum">floor {health.groundingFloor.toFixed(2)}</span>
-            </span>
-          )}
+              aria-label={`status ${health.status}`}
+            />
+          </dl>
+        )}
 
+        <div className="ml-auto flex items-center gap-2">
           <button
             type="button"
             onClick={() => setInspect((v) => !v)}
             aria-pressed={inspect}
-            className={`flex items-center gap-1.5 rounded-md border px-2 py-1.5 text-[11px] font-medium transition ${
+            className={`flex cursor-pointer items-center gap-1.5 border px-2.5 py-1.5 text-[10px] tracking-[0.14em] uppercase transition-colors ${
               inspect
-                ? "border-accent/50 bg-accent/10 text-accent"
-                : "border-border text-fg-muted hover:text-fg"
+                ? "border-cold/50 bg-cold/10 text-cold"
+                : "border-rule text-faint hover:text-dim"
             }`}
           >
-            <ScanEye className="size-3.5" />
-            Inspect Mode
+            <ScanEye className="size-3" />
+            Inspect
           </button>
-
           <EvalBadge />
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1fr_380px]">
-        <main className="grid min-h-0 grid-rows-[minmax(340px,3fr)_minmax(260px,2fr)] gap-4 overflow-y-auto p-4">
-          {dashboard.telemetry ? (
-            <TelemetryChart data={dashboard.telemetry} />
-          ) : (
-            <Placeholder loading={loading} label="test-rig telemetry" />
-          )}
+      {/* Two behaviours, deliberately different. On a wide screen this is a
+          fixed-height instrument: panels hold their place and each scrolls
+          internally. On a phone that would mean three nested scroll areas
+          fighting over 800px, so the page becomes one ordinary scroll with each
+          panel at its natural height. */}
+      <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[1fr_400px] lg:overflow-hidden">
+        <main className="grid grid-rows-[minmax(320px,auto)_minmax(300px,auto)] gap-4 p-4 lg:min-h-0 lg:grid-rows-[minmax(320px,1.15fr)_minmax(260px,1fr)] lg:overflow-y-auto">
+          {/* min-w-0 as well as min-h-0: a grid item defaults to min-width:auto,
+              so without it the panel refuses to shrink below its content and
+              the whole column scrolls sideways on a phone. */}
+          <div className="settle min-h-0 min-w-0" style={{ animationDelay: "40ms" }}>
+            {dashboard.telemetry ? (
+              <TelemetryChart data={dashboard.telemetry} />
+            ) : (
+              <Placeholder loading={loading} label="rig telemetry" />
+            )}
+          </div>
 
-          {dashboard.knowledge ? (
-            <CitationList data={dashboard.knowledge} focus={citationFocus} />
-          ) : corpus && corpus.length > 0 ? (
-            <CorpusPanel documents={corpus} unreachable={UNREACHABLE} />
-          ) : (
-            <Placeholder loading={loading} label="knowledge corpus" detail={health?.detail} />
-          )}
+          <div className="settle min-h-0 min-w-0" style={{ animationDelay: "120ms" }}>
+            {dashboard.knowledge ? (
+              <CitationList data={dashboard.knowledge} floor={floor} focus={citationFocus} />
+            ) : corpus && corpus.length > 0 ? (
+              <CorpusPanel documents={corpus} unreachable={UNREACHABLE} />
+            ) : (
+              <Placeholder loading={loading} label="knowledge corpus" detail={health?.detail} />
+            )}
+          </div>
         </main>
 
-        <aside className="min-h-0">
+        <aside
+          className="settle border-rule min-h-[36rem] border-t lg:min-h-0 lg:border-t-0 lg:border-l"
+          style={{ animationDelay: "200ms" }}
+        >
           <ChatPanel inspect={inspect} onDashboard={applyDashboard} onCite={focusCitation} />
         </aside>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The mark: a magnetisation cycle. Two poles, the field between them, and the
+ * span it produces — the whole technology in 20 pixels, and the source of the
+ * page's two-pole palette.
+ */
+function Mark() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-6 shrink-0"
+      aria-hidden="true"
+      fill="none"
+      strokeWidth="1.5"
+      strokeLinecap="square"
+    >
+      <rect x="0.75" y="0.75" width="22.5" height="22.5" stroke="var(--color-rule-strong)" />
+      <path d="M4 15.5 Q 8 4.5, 12 12 T 20 8.5" stroke="var(--color-cold)" />
+      <line x1="4" y1="19" x2="20" y2="19" stroke="var(--color-hot)" strokeDasharray="2 3" />
+    </svg>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-1.5">
+      <dt className="micro">{label}</dt>
+      <dd className="tnum text-dim">{value}</dd>
     </div>
   );
 }
@@ -158,16 +205,16 @@ function Placeholder({
   detail?: string;
 }) {
   return (
-    <div className="border-border text-fg-subtle flex items-center justify-center rounded-lg border border-dashed p-6 text-xs">
+    <div className="border-rule text-faint flex h-full items-center justify-center border border-dashed p-6 text-xs">
       {loading ? (
         <span className="flex items-center gap-2">
           <Loader2 className="size-3.5 animate-spin" />
-          Loading {label}…
+          Reading {label}…
         </span>
       ) : (
         <span className="max-w-sm text-center leading-relaxed">
           No {label} available.{" "}
-          {detail ?? "Check DATABASE_URL, then run `npm run ingest` and `npm run seed:telemetry`."}
+          {detail ?? "Set DATABASE_URL, then run `npm run ingest` and `npm run seed:telemetry`."}
         </span>
       )}
     </div>

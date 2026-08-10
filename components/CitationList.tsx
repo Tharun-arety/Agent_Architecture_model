@@ -1,31 +1,46 @@
 "use client";
 
 /**
- * The passages the answer was actually built from.
+ * The evidence pane — and the page's signature.
  *
- * Shown in full, with the score and a link to the source. A citation the reader
- * cannot open is a citation they have to take on trust, and taking retrieval on
- * trust is the habit this whole project is arguing against.
+ * Most RAG interfaces render retrieval as a list with a number beside each row.
+ * That hides the only thing worth knowing: the number is being *judged*. Here
+ * the grounding floor is drawn as an actual rule across the pane, passages sit
+ * above or below it by score, and the ones below are visibly rejected rather
+ * than quietly absent. The argument the whole project makes — a threshold you
+ * cannot see the other side of is a threshold nobody can challenge — is the
+ * layout, not a caption on it.
  *
- * `focus` is set when a `[SOURCE-REF]` in the answer is clicked: the matching
+ * `focus` is set when a `[SOURCE-REF]` in an answer is clicked: the matching
  * passage opens and scrolls into view. Where a source contributed several
- * passages, the highest-scoring one wins — it is the one that most likely
- * carried the claim.
+ * passages the highest-scoring one wins, since it most likely carried the claim.
  */
 
 import * as React from "react";
-import { ChevronRight, ExternalLink, FileText } from "lucide-react";
+import { ChevronRight, ExternalLink } from "lucide-react";
 
 import type { KnowledgePayload } from "@/lib/types";
 
 export type CitationFocus = { sourceRef: string; nonce: number } | null;
 
-export function CitationList({ data, focus }: { data: KnowledgePayload; focus?: CitationFocus }) {
-  // Two things can open a passage — a click on it here, or a click on a
-  // citation in the answer — so each carries a nonce and the more recent one
-  // wins. Deriving the open passage during render rather than synchronising two
-  // sources of truth in an effect means the list cannot briefly disagree with
-  // itself.
+/** Scores from this embedding model live in roughly 0.1–0.8, so a 0–1 axis
+ *  would compress every bar into the left third and make them unreadable. */
+const SCALE_MAX = 0.85;
+const pct = (score: number) => Math.max(2, Math.min(100, (score / SCALE_MAX) * 100));
+
+export function CitationList({
+  data,
+  floor,
+  focus,
+}: {
+  data: KnowledgePayload;
+  floor: number;
+  focus?: CitationFocus;
+}) {
+  // Two things can open a passage — a click here, or a citation in the answer —
+  // so each carries a nonce and the more recent wins. Derived during render
+  // rather than synchronised in an effect, so the list cannot disagree with
+  // itself for a frame.
   const [manual, setManual] = React.useState<{ key: string | null; nonce: number }>({
     key: null,
     nonce: -1,
@@ -35,30 +50,42 @@ export function CitationList({ data, focus }: { data: KnowledgePayload; focus?: 
   const keyOf = (hit: KnowledgePayload["hits"][number], index: number) =>
     `${hit.sourceRef}-${hit.chunkIndex}-${index}`;
 
-  // The best-scoring passage for each source, so a click has one destination.
+  // `hits` cleared the floor; `rejected` did not and is sent to the interface
+  // only. Merged and re-sorted here so the pane is one ranked column with the
+  // threshold drawn through it.
+  const ranked = React.useMemo(
+    () =>
+      [...data.hits, ...(data.rejected ?? [])]
+        .sort((a, b) => b.similarity - a.similarity)
+        .map((hit, index) => ({ hit, key: keyOf(hit, index) })),
+    [data.hits, data.rejected],
+  );
+  const kept = ranked.filter((row) => row.hit.similarity >= floor);
+  const rejected = ranked.filter((row) => row.hit.similarity < floor);
+
   const targetKey = React.useMemo(() => {
     if (!focus) return null;
     let best: { key: string; similarity: number } | null = null;
-    data.hits.forEach((hit, index) => {
-      if (hit.sourceRef.toUpperCase() !== focus.sourceRef) return;
-      if (!best || hit.similarity > best.similarity) {
-        best = { key: keyOf(hit, index), similarity: hit.similarity };
+    for (const row of ranked) {
+      if (row.hit.sourceRef.toUpperCase() !== focus.sourceRef) continue;
+      if (!best || row.hit.similarity > best.similarity) {
+        best = { key: row.key, similarity: row.hit.similarity };
       }
-    });
+    }
     return best ? (best as { key: string }).key : null;
-  }, [data.hits, focus]);
+  }, [ranked, focus]);
 
   const focusNonce = focus?.nonce ?? -1;
   const openKey = manual.nonce >= focusNonce ? manual.key : targetKey;
 
-  // Scrolling is a real DOM side effect, so it belongs here — but nothing in
-  // this effect sets state. It is keyed on the nonce as well as the target, so
-  // clicking the same citation twice scrolls back to it rather than doing
-  // nothing the second time.
+  // Scrolling is a real DOM side effect and belongs in an effect; nothing here
+  // sets state. Keyed on the nonce too, so clicking the same citation twice
+  // scrolls back to it instead of doing nothing.
   React.useEffect(() => {
     if (!targetKey || focusNonce < 0) return;
-    const node = containerRef.current?.querySelector(`[data-passage="${targetKey}"]`);
-    node?.scrollIntoView({ behavior: "smooth", block: "center" });
+    containerRef.current
+      ?.querySelector(`[data-passage="${targetKey}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [targetKey, focusNonce]);
 
   const toggle = (key: string) =>
@@ -68,38 +95,70 @@ export function CitationList({ data, focus }: { data: KnowledgePayload; focus?: 
     }));
 
   return (
-    <div className="border-border bg-surface flex h-full flex-col rounded-lg border">
-      <header className="border-border border-b px-4 py-3">
-        <h2 className="flex items-center gap-2 text-sm font-semibold">
-          <FileText className="text-accent size-4" />
-          Retrieved evidence
-        </h2>
-        <p className="text-fg-subtle mt-0.5 truncate text-[11px]">
-          {data.hits.length} passage{data.hits.length === 1 ? "" : "s"} above the grounding floor
-          {data.query ? ` for “${data.query}”` : ""} · click a citation in the answer to jump here
+    <section className="flex h-full min-h-0 flex-col">
+      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pb-2">
+        <h2 className="legend shrink-0 after:hidden">Retrieved evidence</h2>
+        <p className="text-faint min-w-0 flex-1 truncate text-[11px]">
+          {data.query ? `“${data.query}”` : "no query"}
         </p>
+        <span className="tnum text-faint shrink-0 font-mono text-[10px]">
+          <span className="text-cold">{kept.length}</span> above ·{" "}
+          <span className="text-hot">{rejected.length}</span> below
+        </span>
       </header>
 
-      <div ref={containerRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
-        {data.hits.length === 0 && (
-          <p className="text-fg-subtle text-xs">
-            Nothing cleared the similarity floor, so nothing was passed to the model.
-          </p>
+      <div
+        ref={containerRef}
+        className="border-rule bg-panel min-h-0 flex-1 overflow-y-auto border"
+      >
+        {ranked.length === 0 && (
+          <p className="text-faint p-4 text-xs">Nothing was retrieved for this turn.</p>
         )}
-        {data.hits.map((hit, index) => {
-          const key = keyOf(hit, index);
-          return (
-            <Passage
-              key={key}
-              passageKey={key}
-              hit={hit}
-              open={openKey === key}
-              highlighted={targetKey === key && focusNonce >= manual.nonce}
-              onToggle={() => toggle(key)}
-            />
-          );
-        })}
+
+        {kept.map((row) => (
+          <Passage
+            key={row.key}
+            passageKey={row.key}
+            hit={row.hit}
+            open={openKey === row.key}
+            highlighted={targetKey === row.key && focusNonce >= manual.nonce}
+            onToggle={() => toggle(row.key)}
+          />
+        ))}
+
+        {ranked.length > 0 && <FloorRule floor={floor} rejectedCount={rejected.length} />}
+
+        {rejected.map((row) => (
+          <Passage
+            key={row.key}
+            passageKey={row.key}
+            hit={row.hit}
+            below
+            open={openKey === row.key}
+            highlighted={targetKey === row.key && focusNonce >= manual.nonce}
+            onToggle={() => toggle(row.key)}
+          />
+        ))}
       </div>
+    </section>
+  );
+}
+
+/** The threshold, drawn. Everything above it reached the model; everything
+ *  below was discarded before the model saw it. */
+function FloorRule({ floor, rejectedCount }: { floor: number; rejectedCount: number }) {
+  return (
+    <div className="relative select-none px-3 py-2.5">
+      <div className="threshold" />
+      <div className="mt-1.5 flex items-baseline justify-between gap-3">
+        <span className="micro text-hot">Grounding floor</span>
+        <span className="tnum text-hot font-mono text-[10px]">{floor.toFixed(3)}</span>
+      </div>
+      <p className="text-faint mt-0.5 text-[10px] leading-relaxed">
+        {rejectedCount === 0
+          ? "Nothing scored below it on this query."
+          : `${rejectedCount} passage${rejectedCount === 1 ? "" : "s"} discarded before the model saw them.`}
+      </p>
     </div>
   );
 }
@@ -109,57 +168,71 @@ function Passage({
   hit,
   open,
   highlighted,
+  below = false,
   onToggle,
 }: {
   passageKey: string;
   hit: KnowledgePayload["hits"][number];
   open: boolean;
   highlighted: boolean;
+  below?: boolean;
   onToggle: () => void;
 }) {
-  // Above 0.5 is a strong match for this embedding model; between the floor and
-  // 0.5 is "relevant, but weigh it". Colouring the score makes that legible
-  // without a legend.
-  const tone = hit.similarity >= 0.5 ? "text-ok" : "text-warn";
-
   return (
-    <div
+    <article
       data-passage={passageKey}
-      className={`rounded-md border transition ${
-        highlighted ? "border-accent/60 bg-accent/5" : "border-border bg-surface-muted"
-      }`}
+      className={`border-rule border-b transition-colors last:border-b-0 ${
+        highlighted ? "bg-cold/5" : ""
+      } ${below ? "opacity-55" : ""}`}
     >
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-start gap-2 px-2.5 py-2 text-left"
+        aria-expanded={open}
+        className="hover:bg-raised/60 flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left transition-colors"
       >
         <ChevronRight
-          className={`text-fg-subtle mt-0.5 size-3 shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
+          className={`text-faint size-3 shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
         />
+
+        <span
+          className={`tnum w-11 shrink-0 font-mono text-[11px] ${below ? "text-hot" : "text-cold"}`}
+        >
+          {hit.similarity.toFixed(3)}
+        </span>
+
+        {/* The score as a measured length, not just a printed number. Read
+            across a column of rows it shows the gap between a strong match and
+            a marginal one at a glance. */}
+        <span className="bg-inset relative hidden h-1 w-16 shrink-0 overflow-hidden sm:block">
+          <span
+            className={`absolute inset-y-0 left-0 ${below ? "bg-hot/60" : "bg-cold/70"}`}
+            style={{ width: `${pct(hit.similarity)}%` }}
+          />
+        </span>
+
         <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-2">
-            <span className="text-accent shrink-0 font-mono text-[10px]">{hit.sourceRef}</span>
-            <span className={`tnum shrink-0 text-[10px] ${tone}`}>{hit.similarity.toFixed(3)}</span>
+          <span className="text-cold block font-mono text-[10px] tracking-wide">
+            {hit.sourceRef}
           </span>
-          <span className="text-fg-muted mt-0.5 block truncate text-[11px]">{hit.docTitle}</span>
+          <span className="text-dim mt-0.5 block truncate text-[11px]">{hit.docTitle}</span>
         </span>
       </button>
 
       {open && (
-        <div className="border-border space-y-2 border-t px-2.5 py-2">
-          <p className="text-fg-muted text-[11px] leading-relaxed whitespace-pre-wrap">{hit.text}</p>
+        <div className="border-rule bg-inset space-y-2 border-t px-3 py-2.5">
+          <p className="text-dim text-[11px] leading-relaxed whitespace-pre-wrap">{hit.text}</p>
           <a
             href={hit.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent hover:text-fg inline-flex items-center gap-1 text-[10px] transition"
+            className="text-cold hover:text-ink inline-flex items-center gap-1 font-mono text-[10px] transition-colors"
           >
             <ExternalLink className="size-2.5" />
             {new URL(hit.sourceUrl).hostname}
           </a>
         </div>
       )}
-    </div>
+    </article>
   );
 }

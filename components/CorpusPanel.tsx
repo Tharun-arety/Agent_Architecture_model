@@ -4,23 +4,24 @@
  * The corpus inventory — what the Knowledge agent can answer from, before
  * anyone has asked it anything.
  *
- * Shown until a retrieval happens, at which point the citation list replaces it
- * with the passages that particular answer used. Both panes are making the same
+ * Shown until a retrieval happens, at which point the evidence pane replaces it
+ * with the passages that particular answer used. Both are making the same
  * argument from different ends: this system's scope is a finite, inspectable
  * set of documents, and here it is.
  *
- * The unreachable source is listed too. A corpus page that quietly omits the
- * one URL that 403s is telling a tidier story than the ingest actually had.
+ * Share-of-index is drawn per row because it explains a design decision made
+ * elsewhere: one document holding a third of the corpus is why retrieval caps
+ * at two passages per source.
  */
 
-import { ExternalLink, FileText, Library, TriangleAlert } from "lucide-react";
+import { ExternalLink, TriangleAlert } from "lucide-react";
 
 import type { CorpusDocument } from "@/lib/db/queries";
 
 const TYPE_LABELS: Record<string, string> = {
-  vendor_technical: "vendor technical",
+  vendor_technical: "vendor",
   product_page: "product",
-  project_page: "EU project",
+  project_page: "project",
   press: "press",
   industry_analysis: "industry",
   reference: "reference",
@@ -38,83 +39,70 @@ export function CorpusPanel({
   const widest = Math.max(...documents.map((d) => d.chunks), 1);
 
   return (
-    <div className="border-border bg-surface flex h-full flex-col rounded-lg border">
-      <header className="border-border flex items-start justify-between gap-3 border-b px-4 py-3">
-        <div className="min-w-0">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Library className="text-accent size-4" />
-            Knowledge corpus
-          </h2>
-          <p className="text-fg-subtle mt-0.5 text-[11px]">
-            {documents.length} public documents · {total} chunks indexed · fetched at
-            seed time, not committed to the repository
-          </p>
-        </div>
+    <section className="flex h-full min-h-0 flex-col">
+      <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pb-2">
+        <h2 className="legend shrink-0 after:hidden">Knowledge corpus</h2>
+        <p className="text-faint min-w-0 flex-1 truncate text-[11px]">
+          fetched at seed time, not committed to the repository
+        </p>
+        <span className="tnum text-faint shrink-0 font-mono text-[10px]">
+          {documents.length} docs · {total} chunks
+        </span>
       </header>
 
-      <div className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
+      <div className="border-rule bg-panel min-h-0 flex-1 overflow-y-auto border">
         {documents.map((doc) => (
-          <div
+          <a
             key={doc.sourceRef}
-            className="border-border bg-surface-muted rounded-md border px-2.5 py-2"
+            href={doc.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-rule hover:bg-raised/60 group flex items-center gap-2.5 border-b px-3 py-2 transition-colors last:border-b-0"
           >
-            <div className="flex items-baseline gap-2">
-              <span className="text-accent shrink-0 font-mono text-[10px]">{doc.sourceRef}</span>
-              <span className="text-fg-subtle shrink-0 text-[10px]">
-                {TYPE_LABELS[doc.docType] ?? doc.docType}
-              </span>
-              <span className="tnum text-fg-subtle ml-auto shrink-0 text-[10px]">
-                {doc.chunks} chunks
-              </span>
-            </div>
+            <span className="text-cold w-[104px] shrink-0 font-mono text-[10px] tracking-wide">
+              {doc.sourceRef}
+            </span>
 
-            <div className="mt-1 flex items-center gap-2">
-              <a
-                href={doc.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-fg-muted hover:text-accent group inline-flex min-w-0 items-center gap-1 text-[11px] transition"
-              >
-                <span className="truncate">{doc.docTitle}</span>
-                <ExternalLink className="size-2.5 shrink-0 opacity-0 transition group-hover:opacity-100" />
-              </a>
-            </div>
-
-            {/* Share of the index. WIKI-MCE holding a third of it is the reason
-                retrieval caps at two passages per source — visible here rather
-                than only in the README. */}
-            <div className="bg-bg mt-1.5 h-0.5 w-full overflow-hidden rounded-full">
-              <div
-                className="bg-accent/50 h-full rounded-full"
-                style={{ width: `${Math.max(2, Math.round((doc.chunks / widest) * 100))}%` }}
+            {/* Share of the index, as a measured length. */}
+            <span className="bg-inset relative hidden h-1 w-16 shrink-0 overflow-hidden sm:block">
+              <span
+                className="bg-cold/45 absolute inset-y-0 left-0"
+                style={{ width: `${Math.max(3, Math.round((doc.chunks / widest) * 100))}%` }}
               />
-            </div>
-          </div>
+            </span>
+
+            <span className="tnum text-faint w-8 shrink-0 text-right font-mono text-[10px]">
+              {doc.chunks}
+            </span>
+
+            <span className="text-dim group-hover:text-ink min-w-0 flex-1 truncate text-[11px] transition-colors">
+              {doc.docTitle}
+            </span>
+
+            <span className="micro hidden shrink-0 md:inline">
+              {TYPE_LABELS[doc.docType] ?? doc.docType}
+            </span>
+            <ExternalLink className="text-faint size-2.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+          </a>
         ))}
 
         {unreachable?.map((source) => (
           <div
             key={source.sourceRef}
-            className="border-warn/30 bg-warn/5 flex items-start gap-2 rounded-md border px-2.5 py-2"
+            className="border-rule flex items-start gap-2.5 border-b px-3 py-2 opacity-60 last:border-b-0"
           >
-            <TriangleAlert className="text-warn mt-0.5 size-3 shrink-0" />
-            <div className="min-w-0">
-              <span className="text-warn font-mono text-[10px]">{source.sourceRef}</span>
-              <p className="text-fg-subtle mt-0.5 text-[10px] leading-relaxed">
-                In the source manifest, but unreachable at ingest
-                {source.detail ? ` — ${source.detail}` : ""}. Recorded and skipped rather
-                than failing the run.
-              </p>
-            </div>
+            <span className="text-warm w-[104px] shrink-0 font-mono text-[10px] tracking-wide">
+              {source.sourceRef}
+            </span>
+            <TriangleAlert className="text-warm mt-0.5 size-3 shrink-0" />
+            <p className="text-faint min-w-0 flex-1 text-[10px] leading-relaxed">
+              In the manifest, unreachable at ingest
+              {source.detail ? ` — ${source.detail}` : ""}. Recorded and skipped rather than
+              failing the run.
+            </p>
           </div>
         ))}
       </div>
-
-      <footer className="border-border text-fg-subtle border-t px-3 py-2 text-[10px] leading-relaxed">
-        <FileText className="mr-1 inline size-3 align-[-2px]" />
-        Ask a question and this pane is replaced by the passages that answer used,
-        with their similarity scores.
-      </footer>
-    </div>
+    </section>
   );
 }

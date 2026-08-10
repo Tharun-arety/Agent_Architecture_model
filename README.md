@@ -358,6 +358,44 @@ scripts/
   seed-telemetry.ts       deterministic synthetic rig data
 ```
 
+## The interface
+
+It is a lab instrument faceplate, and the reason is structural rather than
+decorative. **Everything in this system is a value being judged against a stated
+limit** — a reading against its acceptance floor, a similarity score against the
+grounding floor, a guardrail verdict against a pattern, an eval metric against a
+target. That is one statement, so it gets one visual device: a labelled
+threshold with values sitting either side of it.
+
+The signature is the **evidence pane**. Most RAG interfaces render retrieval as
+a list with a number beside each row, which hides the only thing worth knowing:
+the number is being judged. Here the grounding floor is drawn as a rule across
+the pane, passages sit above or below it by score, and the rejected ones are
+visibly present rather than quietly absent. The interface is therefore shown
+*more* than the model is — sub-floor passages travel on the SSE frame but never
+enter the transcript — because a threshold you cannot see the far side of is a
+threshold nobody can challenge. The same device is the acceptance limit on the
+chart and the target line on the eval bars.
+
+The palette is two-pole because the subject is. Magnetocaloric cooling works by
+magnetising (the material warms) and demagnetising (it cools), so **cold cyan is
+the verified state** — inside limits, above the floor — and warm amber through
+hot red is attention through breach. That mapping holds whether the thing being
+judged is a temperature or a cosine similarity, which is what lets one language
+cover telemetry, retrieval and evals. The ground is a cold blue-black rather
+than a neutral near-black so the cyan reads as part of the surface.
+
+Two typefaces, each with one job. **Space Grotesk** carries the chrome — its
+clipped terminals read as drawn rather than typeset, which suits a faceplate.
+**JetBrains Mono** carries everything that is a measurement, because those are
+read in columns and compared. Section legends are silkscreen: uppercase, widely
+tracked, with a hairline to the edge.
+
+Deliberately not done: no `01 / 02 / 03` section numbering. These panels are
+simultaneous instrument channels, not a sequence, so numbering them would encode
+something untrue. Motion is one orchestrated moment — the panels settle in
+reading order on load — and nothing else animates on arrival.
+
 ## Design notes
 
 - **Structured tool payloads travel on their own SSE frame.** The chart and the
