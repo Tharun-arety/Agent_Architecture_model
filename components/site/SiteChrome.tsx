@@ -9,28 +9,30 @@
  * hidden behind this bar.
  */
 
+import Link from "next/link";
 import { Mail } from "lucide-react";
 
 import { GithubMark } from "@/components/site/GithubMark";
 
 import { EvalBadge } from "@/components/EvalBadge";
-import { Mark } from "@/components/site/Console";
+import { Monogram } from "@/components/site/Monogram";
+import { ThemeToggle } from "@/components/site/ThemeToggle";
 import { REPO_URL } from "@/components/site/system-entries";
 import { EMAIL } from "@/components/site/site-data";
 
 const NAV = [
-  { href: "#approach", label: "Approach" },
-  { href: "#systems", label: "Systems" },
-  { href: "#stack", label: "Stack" },
-  { href: "#resume", label: "Background" },
+  { href: "/#approach", label: "Approach" },
+  { href: "/projects", label: "Projects" },
+  { href: "/#stack", label: "Stack" },
+  { href: "/#resume", label: "Background" },
 ];
 
 export function SiteHeader() {
   return (
     <header className="border-rule bg-ground/80 sticky top-0 z-40 border-b backdrop-blur">
       <div className="shell flex h-16 items-center gap-4">
-        <a href="#top" className="flex min-w-0 items-center gap-2.5">
-          <Mark />
+        <Link href="/" className="flex min-w-0 items-center gap-2.5">
+          <Monogram />
           <span className="min-w-0">
             <span className="text-ink block truncate text-[13px] leading-tight font-medium">
               Tharun Arety
@@ -39,7 +41,7 @@ export function SiteHeader() {
               AI-Leveraged Systems Architect
             </span>
           </span>
-        </a>
+        </Link>
 
         <nav className="ml-auto hidden items-center gap-6 md:flex">
           {NAV.map((item) => (
@@ -57,6 +59,7 @@ export function SiteHeader() {
           <div className="hidden sm:block">
             <EvalBadge />
           </div>
+          <ThemeToggle />
           <a
             href={REPO_URL}
             target="_blank"

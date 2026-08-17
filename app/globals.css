@@ -1,17 +1,26 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
- * A lab instrument faceplate, not a dashboard.
+ * Two themes, one set of names.
  *
- * The palette is two-pole because the subject is: magnetocaloric cooling works
- * by magnetising (the material warms) and demagnetising (it cools). Cold is
- * the verified state: a reading inside its limit, a passage above the
- * grounding floor. Warm is attention, hot is a breach. That mapping is the same
- * whether the thing being judged is a temperature or a cosine similarity, which
- * is what lets one visual language cover telemetry, retrieval and evals.
+ * Every surface token is named for its job rather than its colour, so a
+ * component never asks for "dark grey". It asks for the recessed surface, or
+ * the raised one, and the theme decides what that means. The elevation order
+ * holds in both directions:
  *
- * The ground is a cold blue-black rather than a neutral near-black, so the cyan
- * reads as belonging to the surface rather than sitting on top of it.
+ *   inset  <  veil  <  ground  <  panel  <  raised
+ *
+ * In dark that runs black to grey. In light it runs grey to white. Either way
+ * the agent panel sits on `raised` and reads as the nearest thing to the
+ * viewer, which is the whole point of that decision.
+ *
+ * The three verdict colours are the exception, because they carry meaning
+ * rather than mood. Cold is verified: inside a limit, above the floor. Warm is
+ * attention. Hot is a breach. Light mode darkens and saturates them so they
+ * stay legible on a pale ground, but the mapping never changes.
+ *
+ * Dark is the default. An inline script in `layout.tsx` resolves the stored or
+ * system preference and stamps `data-theme` before first paint.
  * ------------------------------------------------------------------------ */
 
 @theme {
@@ -19,6 +28,7 @@
   --color-panel: #121a21;
   --color-raised: #17222b;
   --color-inset: #0d151b;
+  --color-veil: #0f171e;
 
   --color-rule: #22303c;
   --color-rule-strong: #35495c;
@@ -27,12 +37,12 @@
   --color-dim: #93a7b8;
   --color-faint: #7a8b9c;
 
-  /* Demagnetised: verified, grounded, inside limits. */
+  /* Verified: inside limits, above the floor. */
   --color-cold: #57d7e0;
   --color-cold-dim: #1e5c66;
-  /* Magnetised: measured, worth attention. */
+  /* Measured, worth attention. */
   --color-warm: #f2a65a;
-  /* Breach: outside a limit, blocked by a guardrail. */
+  /* Outside a limit, or blocked by a guardrail. */
   --color-hot: #e5644e;
 
   --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
@@ -41,6 +51,38 @@
 
 :root {
   color-scheme: dark;
+  /* A card lifts off a dark ground with a deep, tight shadow. On a light ground
+     the same shadow reads as dirt, so each theme sets its own. */
+  --frame-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.04) inset,
+    0 18px 40px -24px rgb(0 0 0 / 0.8);
+}
+
+/* Warm off-white rather than pure white: white pages glare, and the slight
+   warmth stops the greys reading as blue. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --frame-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.9) inset,
+    0 10px 26px -18px rgb(20 24 28 / 0.28);
+
+  --color-ground: #f4f4f1;
+  --color-panel: #fbfbfa;
+  --color-raised: #ffffff;
+  --color-inset: #ebebe7;
+  --color-veil: #ebebe7;
+
+  --color-rule: #dedcd6;
+  --color-rule-strong: #b9b6ad;
+
+  --color-ink: #14181c;
+  --color-dim: #4c545c;
+  --color-faint: #5d656d;
+
+  --color-cold: #0a6470;
+  --color-cold-dim: #a7dde3;
+  --color-warm: #9a5b12;
+  --color-hot: #b53826;
 }
 
 html,
@@ -182,7 +224,6 @@ body {
  * ------------------------------------------------------------------------ */
 
 @theme {
-  --color-veil: #0f171e;
   --radius-frame: 16px;
   --radius-chip: 999px;
 }
@@ -195,9 +236,7 @@ body {
     border: 1px solid var(--color-rule);
     border-radius: var(--radius-frame);
     overflow: hidden;
-    box-shadow:
-      0 1px 0 0 rgb(255 255 255 / 0.04) inset,
-      0 18px 40px -24px rgb(0 0 0 / 0.8);
+    box-shadow: var(--frame-shadow);
   }
 
   .display {
@@ -297,4 +336,16 @@ html {
 }
 .skip-link:focus {
   top: 0.75rem;
+}
+
+/* Show one icon per theme. Both are in the markup so the toggle looks correct
+   on the very first paint, before any JavaScript has run. */
+.light-only {
+  display: none;
+}
+:root[data-theme="light"] .light-only {
+  display: block;
+}
+:root[data-theme="light"] .dark-only {
+  display: none;
 }

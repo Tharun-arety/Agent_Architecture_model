@@ -47,18 +47,39 @@ export const metadata: Metadata = {
 };
 
 /**
- * `color-scheme: dark` is what stops the browser rendering native scrollbars
- * and form controls light against a dark page. `themeColor` matches the ground
- * so mobile browser chrome does not sit as a pale band above it.
+ * `themeColor` follows the system preference so mobile browser chrome matches
+ * the ground rather than sitting as a pale band above it. `color-scheme` is set
+ * per theme in `globals.css` instead of here, because the toggle can override
+ * the system preference and this export is static.
  */
 export const viewport: Viewport = {
-  colorScheme: "dark",
-  themeColor: "#0b1015",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f4f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1015" },
+  ],
 };
+
+/**
+ * Runs before the first paint, which is the only way to avoid a dark page
+ * flashing white (or the reverse) while React boots. Kept to one expression and
+ * wrapped in try/catch, since a thrown error here would block rendering.
+ */
+const THEME_SCRIPT = `
+try {
+  var stored = localStorage.getItem("theme");
+  var system = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  document.documentElement.dataset.theme = stored === "light" || stored === "dark" ? stored : system;
+} catch (e) {
+  document.documentElement.dataset.theme = "dark";
+}
+`.trim();
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>
         <a href="#main" className="skip-link">
           Skip to content

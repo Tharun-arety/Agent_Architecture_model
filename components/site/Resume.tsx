@@ -65,24 +65,6 @@ const EDUCATION = [
   },
 ];
 
-const OTHER_PROJECTS = [
-  {
-    name: "Agentic PDM, ECM and QMS toolchain",
-    stack: "FastAPI · LangGraph · PostgreSQL and pgvector · SQLAlchemy 2 async",
-    line: "Unified quality data behind one interface, so changes can be proposed by an agent and approved by a person.",
-  },
-  {
-    name: "Autonomous compliance system",
-    stack: "Vision extraction · scheduled monitoring",
-    line: "Replaced manual compliance tracking with certificate extraction, expiry monitoring and supplier outreach that runs itself.",
-  },
-  {
-    name: "TalentFlow",
-    stack: "Next.js · PostgreSQL · Drizzle",
-    line: "An applicant tracking system covering the whole pipeline from requisition to hire.",
-  },
-];
-
 export function Resume() {
   return (
     <section id="resume">
@@ -123,19 +105,6 @@ export function Resume() {
                   ))}
                 </ul>
               </div>
-            </article>
-          ))}
-        </div>
-
-        <h3 className="legend mt-14">Other work</h3>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {OTHER_PROJECTS.map((project) => (
-            <article key={project.name} className="frame p-5">
-              <h4 className="text-ink text-[14px] leading-snug font-medium">{project.name}</h4>
-              <p className="text-faint mt-2 font-mono text-[10px] leading-relaxed">
-                {project.stack}
-              </p>
-              <p className="text-dim mt-3 text-[13px] leading-relaxed">{project.line}</p>
             </article>
           ))}
         </div>
