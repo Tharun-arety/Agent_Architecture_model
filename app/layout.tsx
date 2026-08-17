@@ -1,18 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 /**
  * Two families, each with one job.
  *
- * Space Grotesk carries the chrome: legends, headings, prose. Its clipped
- * terminals and squared bowls read as drawn rather than typeset, which suits a
- * faceplate. JetBrains Mono carries everything that is a measurement — scores,
- * limits, source handles, tool arguments — because those are read in columns
- * and compared, and proportional digits make that harder than it needs to be.
+ * Space Grotesk carries the chrome: headings, legends, prose. Its clipped
+ * terminals and squared bowls read as drawn rather than typeset, which suits an
+ * instrument. JetBrains Mono carries everything that is a measurement, because
+ * scores, limits, source handles and tool arguments get read in columns and
+ * compared, and proportional digits make that harder than it needs to be.
  *
- * Self-hosted through next/font: no third-party request on load, and no layout
- * shift when the faces arrive.
+ * Self-hosted through next/font, so there is no third-party request on load and
+ * no layout shift when the faces arrive.
  */
 const display = Space_Grotesk({
   subsets: ["latin"],
@@ -29,17 +29,42 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Magnetocaloric Engineering Agent — guardrails & evals",
+  title: "Tharun Arety · AI-Leveraged Systems Architect",
   description:
-    "Two agents over magnetocaloric cooling data — retrieval from real public documents and " +
-    "queries over synthetic test-rig telemetry — behind an input, argument and grounding " +
-    "guardrail pipeline, with every verdict, tool call and token cost on show.",
+    "I turn fragmented business data, documents, knowledge and workflows into " +
+    "systems that AI agents can understand, operate and continuously improve. " +
+    "Includes a working prototype you can query, with its guardrails and eval " +
+    "scores on the page.",
+  authors: [{ name: "Tharun Arety" }],
+  openGraph: {
+    type: "website",
+    title: "Tharun Arety · AI-Leveraged Systems Architect",
+    description:
+      "A working agent prototype with its guardrail verdicts, retrieval scores " +
+      "and offline eval results visible in the interface.",
+    locale: "en_GB",
+  },
+};
+
+/**
+ * `color-scheme: dark` is what stops the browser rendering native scrollbars
+ * and form controls light against a dark page. `themeColor` matches the ground
+ * so mobile browser chrome does not sit as a pale band above it.
+ */
+export const viewport: Viewport = {
+  colorScheme: "dark",
+  themeColor: "#0b1015",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,15 +1,17 @@
 "use client";
 
 /**
- * The evidence pane — and the page's signature.
+ * The evidence pane.
  *
- * Most RAG interfaces render retrieval as a list with a number beside each row.
- * That hides the only thing worth knowing: the number is being *judged*. Here
- * the grounding floor is drawn as an actual rule across the pane, passages sit
- * above or below it by score, and the ones below are visibly rejected rather
- * than quietly absent. The argument the whole project makes — a threshold you
- * cannot see the other side of is a threshold nobody can challenge — is the
- * layout, not a caption on it.
+ * Most RAG interfaces render retrieval as a list with a number beside each row,
+ * which hides the fact that the number is being judged. Here the grounding
+ * floor is drawn as a rule across the pane, passages sit above or below it by
+ * score, and the ones below stay on screen.
+ *
+ * That matters because the floor is a claim about separation. In-corpus
+ * questions score 0.582 at rank 1 on average and off-corpus questions score
+ * 0.189, so 0.35 sits inside a gap of 0.393. Showing the rejected passages is
+ * what lets a reader check that rather than take it on trust.
  *
  * `focus` is set when a `[SOURCE-REF]` in an answer is clicked: the matching
  * passage opens and scrolls into view. Where a source contributed several
@@ -37,8 +39,8 @@ export function CitationList({
   floor: number;
   focus?: CitationFocus;
 }) {
-  // Two things can open a passage — a click here, or a citation in the answer —
-  // so each carries a nonce and the more recent wins. Derived during render
+  // Two things can open a passage: a click here, or a citation in the answer.
+  // Each carries a nonce and the more recent wins. Derived during render
   // rather than synchronised in an effect, so the list cannot disagree with
   // itself for a frame.
   const [manual, setManual] = React.useState<{ key: string | null; nonce: number }>({
@@ -97,7 +99,7 @@ export function CitationList({
   return (
     <section className="flex h-full min-h-0 flex-col">
       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pb-2">
-        <h2 className="legend shrink-0 after:hidden">Retrieved evidence</h2>
+        <h3 className="legend shrink-0 after:hidden">Retrieved evidence</h3>
         <p className="text-faint min-w-0 flex-1 truncate text-[11px]">
           {data.query ? `“${data.query}”` : "no query"}
         </p>
@@ -109,7 +111,7 @@ export function CitationList({
 
       <div
         ref={containerRef}
-        className="border-rule bg-panel min-h-0 flex-1 overflow-y-auto border"
+        className="border-rule bg-panel pane-scroll min-h-0 flex-1 border"
       >
         {ranked.length === 0 && (
           <p className="text-faint p-4 text-xs">Nothing was retrieved for this turn.</p>

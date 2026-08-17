@@ -317,6 +317,6 @@ export async function queryRigTelemetry(args: {
     to,
     summaries,
     series,
-    note: "Synthetic test-rig data generated for this demonstration. Not MAGNOTHERM measurements.",
+    note: "Synthetic test-rig data generated for this demonstration. These are not any company's real measurements.",
   };
 }

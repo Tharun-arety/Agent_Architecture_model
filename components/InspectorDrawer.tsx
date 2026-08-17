@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The Inspector — the turn, measured.
+ * The inspector: the turn, measured.
  *
  * Everything here is recorded while the turn runs and carried on the `trace`
  * frame. Nothing is estimated and nothing is scored after the fact. In
@@ -106,7 +106,7 @@ export function InspectorDrawer({
   guardrails,
 }: {
   trace?: TurnTrace;
-  /** Verdicts that arrived before the trace did — shown while streaming. */
+  /** Verdicts that arrived before the trace did, shown while streaming. */
   guardrails?: GuardrailVerdict[];
 }) {
   const verdicts = trace?.guardrails ?? guardrails ?? [];

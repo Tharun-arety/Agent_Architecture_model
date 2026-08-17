@@ -1,5 +1,5 @@
 /**
- * GET /api/health — what is configured, and what is actually loaded.
+ * GET /api/health. What is configured, and what is actually loaded.
  *
  * The corpus counts are queried rather than asserted. "Configured" and
  * "working" are different states, and a deploy where DATABASE_URL is set but
@@ -37,8 +37,8 @@ export async function GET() {
       corpus,
       rigs: rigs.length,
       telemetryWindow: window,
-      ...(corpus.chunks === 0 ? { detail: "Corpus is empty — run `npm run ingest`." } : {}),
-      ...(rigs.length === 0 ? { detail: "No rigs — run `npm run seed:telemetry`." } : {}),
+      ...(corpus.chunks === 0 ? { detail: "The document corpus has not been loaded on this deployment yet." } : {}),
+      ...(rigs.length === 0 ? { detail: "The test-rig telemetry has not been seeded on this deployment yet." } : {}),
     });
   } catch (cause) {
     return Response.json(
