@@ -24,6 +24,7 @@ import { HowItsBuilt } from "@/components/site/HowItsBuilt";
 import { Resume } from "@/components/site/Resume";
 import { Contact, SiteFooter, SiteHeader } from "@/components/site/SiteChrome";
 import { Systems } from "@/components/site/Systems";
+import { TechStack } from "@/components/site/TechStack";
 import { WhatIDo } from "@/components/site/WhatIDo";
 import { ANSWER_SAMPLE, ISO_RETRIEVAL, REFUSAL_TRACE } from "@/components/site/fixtures";
 import {
@@ -145,6 +146,7 @@ export default function Page() {
         </FeatureRow>
 
         <HowItsBuilt />
+        <TechStack />
         <Resume />
         <Contact />
       </main>

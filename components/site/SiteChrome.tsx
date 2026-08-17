@@ -21,6 +21,7 @@ import { EMAIL } from "@/components/site/site-data";
 const NAV = [
   { href: "#approach", label: "Approach" },
   { href: "#systems", label: "Systems" },
+  { href: "#stack", label: "Stack" },
   { href: "#resume", label: "Background" },
 ];
 
