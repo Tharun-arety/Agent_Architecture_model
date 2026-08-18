@@ -21,6 +21,8 @@ export const TALENTFLOW_CASE: CaseStudy = {
   ],
   sections: [
     {
+      eyebrow: "The wall",
+      note: "The requisition is the same row on both sides, so the advert cannot outlive the role.",
       title: "Two audiences, one record",
       body: [
         "Most careers pages are a separate system, or a CMS someone updates by hand. Both drift: a role stays advertised for a month after it is filled, and a candidate applies to something that no longer exists.",
@@ -28,6 +30,9 @@ export const TALENTFLOW_CASE: CaseStudy = {
       ],
     },
     {
+      eyebrow: "Measurement",
+      visual: "funnel",
+      note: "Both counts on one axis. The gap between the bars is what a board-shaped funnel throws away.",
       title: "Counting who reached a stage, not who is sitting in it",
       body: [
         "The conversion funnel measures candidates who have ever reached each stage. In the seeded data that reads 52 applied, 33 screened, 10 interviewed, 5 offered, 2 hired — 63% from applied to screening, 30% into interview, 50% to offer.",
@@ -35,6 +40,9 @@ export const TALENTFLOW_CASE: CaseStudy = {
       ],
     },
     {
+      eyebrow: "Neglect",
+      visual: "dwell",
+      note: "Average dwell per stage, and the four candidates who have been waiting longest right now.",
       title: "Surfacing neglect, not just position",
       body: [
         "Every candidate card carries how long it has been idle, and the dashboard reports average time in each stage — 12.6 days in applied, 12.7 in screening, 13.1 in interview, 11.5 at offer in the seeded set.",
@@ -42,6 +50,9 @@ export const TALENTFLOW_CASE: CaseStudy = {
       ],
     },
     {
+      eyebrow: "Attribution",
+      visual: "attribution",
+      note: "The activity feed reads as sentences, because a decision about a person has an author.",
       title: "Every move has a name on it",
       body: [
         "Stage transitions are recorded with who made them, and the activity feed reads as a sentence: moved to offer by Marcus Webb, moved to rejected by Priya Raman.",

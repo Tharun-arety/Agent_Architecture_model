@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ArrowUpRight, MousePointerClick } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  GitBranch,
+  Link2,
+  MousePointerClick,
+  Ruler,
+  ShieldCheck,
+} from "lucide-react";
 
+import { CASE_VISUALS } from "@/components/site/case-visuals";
 import { Console } from "@/components/site/Console";
+import { FeatureRow } from "@/components/site/FeatureRow";
 import { GithubMark } from "@/components/site/GithubMark";
 import { ProfileAgent } from "@/components/site/ProfileAgent";
 import { ProjectDiagram } from "@/components/site/ProjectDiagram";
@@ -23,6 +34,10 @@ import { PROJECTS, bySlug } from "@/components/site/system-entries";
  * others cannot, and saying so plainly is better than staging a screenshot that
  * implies otherwise.
  */
+
+/** Cycled through the sections, so a case study with four of them does not
+ *  repeat one icon twice in a row. */
+const SECTION_ICONS = [GitBranch, ShieldCheck, Ruler, Link2];
 
 export function generateStaticParams() {
   return PROJECTS.map((project) => ({ slug: project.slug }));
@@ -170,25 +185,28 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           )}
         </section>
 
-        <section className="bg-veil">
-          <div className="shell py-14 lg:py-20">
-            <h2 className="legend">Decisions worth defending</h2>
-            <div className="mt-8 grid gap-10 md:grid-cols-2 lg:gap-14">
-              {project.caseStudy.sections.map((section) => (
-                <article key={section.title}>
-                  <h3 className="text-ink text-[16px] leading-snug font-medium">{section.title}</h3>
-                  <div className="mt-3 space-y-3">
-                    {section.body.map((paragraph) => (
-                      <p key={paragraph} className="text-dim text-[14px] leading-[1.7]">
-                        {paragraph}
-                      </p>
-                    ))}
-                  </div>
-                </article>
+        {/* One claim, one visual, alternating sides — the same treatment the
+            main page gives the prototype. A section without its own visual
+            falls back to the architecture diagram rather than an empty frame. */}
+        {project.caseStudy.sections.map((section, index) => {
+          const Visual = section.visual ? CASE_VISUALS[section.visual] : undefined;
+          return (
+            <FeatureRow
+              key={section.title}
+              eyebrow={section.eyebrow}
+              icon={SECTION_ICONS[index % SECTION_ICONS.length]}
+              title={section.title}
+              reverse={index % 2 === 1}
+              veiled={index % 2 === 0}
+              visual={Visual ? <Visual /> : <ProjectDiagram slug={project.slug} />}
+              visualNote={section.note}
+            >
+              {section.body.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
               ))}
-            </div>
-          </div>
-        </section>
+            </FeatureRow>
+          );
+        })}
 
         <section className="shell py-14 lg:py-20">
           <h2 className="legend">What changed</h2>
