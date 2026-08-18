@@ -13,6 +13,7 @@
  */
 
 import { PDM_CASE } from "@/components/site/pdm-case";
+import { TALENTFLOW_CASE } from "@/components/site/talentflow-case";
 
 export const REPO_URL = "https://github.com/Tharun-arety/Agent_Architecture_model";
 
@@ -55,6 +56,9 @@ export type Project = {
    *  than the production system, so the button cannot overstate what it opens. */
   liveNote?: string;
   repoUrl?: string;
+  /** One concrete thing to do in the live app. Rendered as a prompt beside the
+   *  link, because "have a look around" is not a demonstration. */
+  tryThis?: string;
   /** Renders the live console on the main page and in its case study. */
   featured?: boolean;
   caseStudy: CaseStudy;
@@ -83,6 +87,8 @@ const ENTRIES: Project[] = [
     liveLabel: "Open the sandbox",
     liveNote:
       "Signs you straight in on a seeded seat, no account needed. Records are invented and contain no customer data. The production instance is not mine to publish.",
+    tryThis:
+      "Sign in as Admin, then open the approval inbox. Two agent proposals are waiting there with the exact field-level diff each would apply. Expand the tool call that produced one, and note that approving is the only thing that writes.",
     caseStudy: PDM_CASE,
   },
   {
@@ -236,50 +242,9 @@ const ENTRIES: Project[] = [
     liveLabel: "See the public job board",
     liveNote:
       "The candidate-facing half is open to anyone. The hiring pipeline behind it is invite-only, which is the point: the two audiences share a database and see nothing of each other.",
-    caseStudy: {
-      context: [
-        "Recruitment ran on email threads and a spreadsheet. That works until two people are hiring at once, and then the state of a candidate depends on who you ask and how recently they refreshed the tab.",
-        "The specific failure was not losing candidates. It was disagreeing about where they were: someone treated as rejected in one thread and awaiting feedback in another, which is worse than losing them, because nobody knows there is anything to fix.",
-      ],
-      architecture: [
-        "A Next.js application over Postgres, with the schema defined through Drizzle. Requisitions, candidates, pipeline stages and offers are all first-class records rather than columns in a sheet.",
-        "One database serves two audiences that must never see each other. The public job board lists open roles by team and location and takes applications from anyone. The pipeline behind it is invite-only, reached through Google SSO or a password, and an admin adds people rather than anyone self-registering.",
-        "The pipeline states are enforced in the database rather than by convention in the interface. A candidate cannot be in a state the schema does not allow, so the disagreement the system was built to fix cannot be represented.",
-      ],
-      sections: [
-        {
-          title: "Two audiences, one database",
-          body: [
-            "A requisition is the same record on both sides of the wall. Open it internally and it carries the pipeline, the candidates and the offer state. Open it publicly and it is a job advert with a team, a location and a working pattern.",
-            "Keeping that as one record rather than two is what stops the job board drifting from the pipeline, which is the failure every careers page eventually has. Closing a requisition internally takes the advert down, because there is nothing else to take down.",
-          ],
-        },
-        {
-          title: "Constraints in the schema, not in the interface",
-          body: [
-            "It is tempting to enforce a hiring pipeline in the front end, because that is where it is visible. The problem is that every other path into the database bypasses it: an import, a fix applied by hand, a second client.",
-            "Putting the states in the schema means the rule holds regardless of what wrote the row. The interface then only has to render what is already guaranteed.",
-          ],
-        },
-      ],
-      results: [
-        {
-          value: "One",
-          label: "Source of truth",
-          note: "Requisition through to offer, with no parallel spreadsheet.",
-        },
-        {
-          value: "2",
-          label: "Audiences, one record",
-          note: "A public job board and an invite-only pipeline reading the same requisition.",
-        },
-        {
-          value: "Invite only",
-          label: "Access to the pipeline",
-          note: "Nobody self-registers into a system holding other people’s applications.",
-        },
-      ],
-    },
+    tryThis:
+      "Filter the board by team. Every role you see is a live requisition in the pipeline behind it, not a copy someone remembered to update.",
+    caseStudy: TALENTFLOW_CASE,
   },
 ];
 

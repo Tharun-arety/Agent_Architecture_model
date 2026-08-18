@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, MousePointerClick } from "lucide-react";
 
 import { Console } from "@/components/site/Console";
 import { GithubMark } from "@/components/site/GithubMark";
@@ -100,6 +100,18 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <p className="text-faint mt-4 max-w-[54ch] text-[12px] leading-relaxed">
               {project.liveNote}
             </p>
+          )}
+
+          {/* One concrete instruction beats an invitation to look around. A
+              visitor who does this single thing has seen the argument. */}
+          {project.tryThis && (
+            <div className="border-cold/40 bg-cold/5 mt-6 max-w-[62ch] border-l-2 py-3 pl-4">
+              <p className="text-cold flex items-center gap-2 text-[12px] font-medium">
+                <MousePointerClick className="size-3.5 shrink-0" aria-hidden="true" />
+                Try this first
+              </p>
+              <p className="text-dim mt-2 text-[13px] leading-relaxed">{project.tryThis}</p>
+            </div>
           )}
 
           <dl className="border-rule text-faint mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t pt-6 font-mono text-[11px]">
