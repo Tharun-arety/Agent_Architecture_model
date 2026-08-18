@@ -231,7 +231,11 @@ const ENTRIES: Project[] = [
       "A typed Postgres schema through Drizzle, so the pipeline states are enforced by the database rather than by convention.",
     ],
     outcome: "One place holds the state of every open role and every candidate in it.",
-    stack: ["Next.js", "PostgreSQL", "Drizzle"],
+    stack: ["Next.js", "PostgreSQL", "Drizzle", "NextAuth"],
+    liveUrl: "https://talentflow-virid-zeta.vercel.app/careers",
+    liveLabel: "See the public job board",
+    liveNote:
+      "The candidate-facing half is open to anyone. The hiring pipeline behind it is invite-only, which is the point: the two audiences share a database and see nothing of each other.",
     caseStudy: {
       context: [
         "Recruitment ran on email threads and a spreadsheet. That works until two people are hiring at once, and then the state of a candidate depends on who you ask and how recently they refreshed the tab.",
@@ -239,9 +243,17 @@ const ENTRIES: Project[] = [
       ],
       architecture: [
         "A Next.js application over Postgres, with the schema defined through Drizzle. Requisitions, candidates, pipeline stages and offers are all first-class records rather than columns in a sheet.",
+        "One database serves two audiences that must never see each other. The public job board lists open roles by team and location and takes applications from anyone. The pipeline behind it is invite-only, reached through Google SSO or a password, and an admin adds people rather than anyone self-registering.",
         "The pipeline states are enforced in the database rather than by convention in the interface. A candidate cannot be in a state the schema does not allow, so the disagreement the system was built to fix cannot be represented.",
       ],
       sections: [
+        {
+          title: "Two audiences, one database",
+          body: [
+            "A requisition is the same record on both sides of the wall. Open it internally and it carries the pipeline, the candidates and the offer state. Open it publicly and it is a job advert with a team, a location and a working pattern.",
+            "Keeping that as one record rather than two is what stops the job board drifting from the pipeline, which is the failure every careers page eventually has. Closing a requisition internally takes the advert down, because there is nothing else to take down.",
+          ],
+        },
         {
           title: "Constraints in the schema, not in the interface",
           body: [
@@ -255,6 +267,16 @@ const ENTRIES: Project[] = [
           value: "One",
           label: "Source of truth",
           note: "Requisition through to offer, with no parallel spreadsheet.",
+        },
+        {
+          value: "2",
+          label: "Audiences, one record",
+          note: "A public job board and an invite-only pipeline reading the same requisition.",
+        },
+        {
+          value: "Invite only",
+          label: "Access to the pipeline",
+          note: "Nobody self-registers into a system holding other people’s applications.",
         },
       ],
     },

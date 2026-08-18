@@ -255,35 +255,47 @@ function ComplianceDiagram({ className }: DiagramProps) {
   );
 }
 
-/** States enforced where every writer has to pass through them. */
+/** Two audiences, one requisition, one set of states. */
 function TalentDiagram({ className }: DiagramProps) {
   return (
-    <Frame viewBox="0 0 600 210" className={className}>
-      <Box x={0} y={20} w={104} h={40} title="Interface" sub="Next.js" />
-      <Box x={0} y={70} w={104} h={40} title="Import" dashed />
-      <Box x={0} y={120} w={104} h={40} title="Manual fix" dashed />
+    <Frame viewBox="0 0 600 236" className={className}>
+      <text x={0} y={10} fill={FAINT} style={mono}>
+        PUBLIC
+      </text>
+      <Box x={0} y={18} w={132} h={44} title="Job board" sub="anyone" />
+      <Box x={0} y={72} w={132} h={44} title="Application" sub="anyone" />
 
-      <Arrow x1={106} y1={40} x2={186} y2={78} />
-      <Arrow x1={106} y1={90} x2={186} y2={90} />
-      <Arrow x1={106} y1={140} x2={186} y2={102} />
+      <text x={0} y={140} fill={FAINT} style={mono}>
+        INVITE ONLY
+      </text>
+      <Box x={0} y={148} w={132} h={44} title="Pipeline" sub="SSO or password" accent />
 
-      <rect x={188} y={56} width={130} height={68} rx={3} fill="color-mix(in srgb, var(--color-warm) 12%, transparent)" stroke={WARM} />
-      <text x={253} y={82} textAnchor="middle" fill={WARM} style={label}>
+      <line x1={144} y1={0} x2={144} y2={200} stroke={WARM} strokeWidth={1} strokeDasharray="4 4" />
+      <text x={150} y={212} fill={WARM} style={mono}>
+        AN ADMIN ADDS PEOPLE; NOBODY SELF-REGISTERS
+      </text>
+
+      <Arrow x1={134} y1={40} x2={196} y2={92} />
+      <Arrow x1={134} y1={94} x2={196} y2={100} />
+      <Arrow x1={134} y1={170} x2={196} y2={112} />
+
+      <Box x={198} y={78} w={148} h={56} title="Requisition" sub="one record, both sides" accent />
+
+      <Arrow x1={348} y1={106} x2={392} y2={106} />
+      <rect x={394} y={78} width={130} height={56} rx={3} fill="color-mix(in srgb, var(--color-warm) 12%, transparent)" stroke={WARM} />
+      <text x={459} y={100} textAnchor="middle" fill={WARM} style={label}>
         Typed schema
       </text>
-      <text x={253} y={96} textAnchor="middle" fill={FAINT} style={mono}>
+      <text x={459} y={114} textAnchor="middle" fill={FAINT} style={mono}>
         Drizzle
       </text>
-      <text x={253} y={110} textAnchor="middle" fill={FAINT} style={mono}>
-        states enforced here
+      <text x={459} y={126} textAnchor="middle" fill={FAINT} style={mono}>
+        states enforced
       </text>
 
-      <Arrow x1={320} y1={90} x2={358} y2={90} />
-      <Box x={360} y={56} w={110} h={68} title="Postgres" sub="one truth" dashed />
-
-      <text x={0} y={186} fill={DIM} style={{ ...mono, fontSize: 10 }}>
-        Every path in passes the same constraint, so no writer can bypass it.
-      </text>
+      <Arrow x1={526} y1={106} x2={560} y2={106} />
+      <Box x={490} y={148} w={110} h={44} title="Postgres" dashed />
+      <line x1={545} y1={136} x2={545} y2={146} stroke={RULE} strokeWidth={1} markerEnd="url(#tip)" />
     </Frame>
   );
 }

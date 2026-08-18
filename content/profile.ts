@@ -69,7 +69,7 @@ export const PROFILE_DOCS: ProfileDoc[] = [
   {
     ref: "PROJ-TALENTFLOW",
     title: "TalentFlow",
-    text: "A production applicant tracking system covering the whole recruitment pipeline, from opening a requisition through pipeline stages and candidate records to making the offer. Built with Next.js and PostgreSQL using Drizzle, with a typed schema so pipeline states are enforced by the database rather than by convention. It replaced a process that ran across email threads and spreadsheets.",
+    text: "An applicant tracking system covering the whole recruitment pipeline, from opening a requisition through pipeline stages and candidate records to making the offer. Built with Next.js and PostgreSQL using Drizzle, with a typed schema so pipeline states are enforced by the database rather than by convention. One database serves two audiences that never see each other: a public job board at talentflow-virid-zeta.vercel.app/careers that lists open roles and takes applications from anyone, and an invite-only hiring pipeline behind Google SSO where an admin adds people rather than anyone self-registering. A requisition is the same record on both sides, so closing it internally takes the advert down. It replaced a process that ran across email threads and spreadsheets.",
   },
   {
     ref: "GUARDRAILS",
