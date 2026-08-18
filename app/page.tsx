@@ -22,6 +22,7 @@ import { FeatureRow } from "@/components/site/FeatureRow";
 import { Hero } from "@/components/site/Hero";
 import { HowItsBuilt } from "@/components/site/HowItsBuilt";
 import { Resume } from "@/components/site/Resume";
+import { ProfileAgent } from "@/components/site/ProfileAgent";
 import { Contact, SiteFooter, SiteHeader } from "@/components/site/SiteChrome";
 import { Systems } from "@/components/site/Systems";
 import { TechStack } from "@/components/site/TechStack";
@@ -151,6 +152,7 @@ export default function Page() {
         <Contact />
       </main>
       <SiteFooter />
+      <ProfileAgent />
     </>
   );
 }

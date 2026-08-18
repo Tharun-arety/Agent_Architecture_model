@@ -20,12 +20,14 @@ export function Systems() {
     <section id="systems">
       <div className="shell pt-16 lg:pt-24">
         <span className="eyebrow">Systems</span>
-        <h2 className="display-sm text-ink mt-5 max-w-[26ch]">
-          One of them is running on this page
+        <h2 className="display-sm text-ink mt-5 max-w-[28ch]">
+          Four systems, and one of them is running on this page
         </h2>
         <p className="lede mt-4">
-          This one I built to be taken apart, so it is live rather than a screenshot. Try to break
-          it while you read.
+          The production work sits inside client systems, so the toolchains that replaced ERP, CRM
+          and PDM software are described rather than demonstrated. The one I can hand you outright
+          is a prototype, built to the same standard and open to being taken apart. Try to break it
+          while you read.
         </p>
       </div>
 

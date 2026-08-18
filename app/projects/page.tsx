@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { ProjectCard } from "@/components/site/ProjectCard";
+import { ProfileAgent } from "@/components/site/ProfileAgent";
 import { Contact, SiteFooter, SiteHeader } from "@/components/site/SiteChrome";
 import { PROJECTS } from "@/components/site/system-entries";
 
@@ -49,6 +50,7 @@ export default function ProjectsPage() {
         <Contact />
       </main>
       <SiteFooter />
+      <ProfileAgent />
     </>
   );
 }

@@ -12,7 +12,9 @@
     "seed:telemetry": "tsx scripts/seed-telemetry.ts",
     "eval:fast": "tsx evals/run.ts --fast",
     "eval:full": "tsx evals/run.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "embed:profile": "tsx scripts/embed-profile.ts",
+    "embed:profile:eval": "tsx scripts/embed-profile-queries.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

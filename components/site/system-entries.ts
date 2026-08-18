@@ -33,13 +33,13 @@ export type Project = {
   featured?: boolean;
 };
 
-export const PROJECTS: Project[] = [
+const ENTRIES: Project[] = [
   {
     slug: "grounded-engineering-agent",
-    index: "01",
-    title: "An agent that answers from your documents and your operating data",
+    index: "02",
+    title: "A guardrailed agent with every check on show",
     summary:
-      "Two agents behind a router, one over a document corpus and one over a time-series database, with every check they run visible on screen.",
+      "Two agents behind a router, built so the guardrails, the retrieval scores and the cost of every turn are visible while you use it.",
     domain: "Magnetocaloric refrigeration equipment",
     status: "prototype",
     problem:
@@ -57,7 +57,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "agentic-pdm-ecm-qms",
-    index: "02",
+    index: "01",
     title: "Agentic PDM, ECM and QMS toolchain",
     summary:
       "Product data, engineering change and quality management behind one interface, where an agent proposes changes and a person approves them.",
@@ -112,4 +112,9 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export const FEATURED = PROJECTS.find((project) => project.featured) ?? PROJECTS[0];
+/** Ordered by index, so the enterprise toolchain leads and the operable
+ *  prototype follows it. */
+export const PROJECTS: Project[] = [...ENTRIES].sort((a, b) => a.index.localeCompare(b.index));
+
+/** The one with a live console on the homepage. */
+export const FEATURED = ENTRIES.find((project) => project.featured) ?? ENTRIES[0];

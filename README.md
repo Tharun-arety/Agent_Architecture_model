@@ -298,6 +298,74 @@ one that only reports the mean misses the second.
 
 ---
 
+## The second agent, over my own background
+
+The floating panel on the site answers questions about me. It runs the same
+shape of pipeline as the console — secrets redacted, injection refused,
+retrieval scored against a floor, every citation checked against what was
+actually retrieved — over a different corpus.
+
+Two things about it are deliberate.
+
+**There is no database.** Seventeen passages do not justify one. `npm run
+embed:profile` reads `content/profile.ts`, embeds each passage once, and writes
+`data/profile-corpus.json` with the vectors attached. That file is committed, so
+the deployed site needs no migration and no seed step, and retrieval is a dot
+product over an array held in memory. The corpus is reviewable in a diff, which
+a table is not. Editing the source without re-embedding would leave the agent
+citing text nobody can see, so the generated file carries a hash of its source
+and the route refuses to answer if the two disagree.
+
+**There is no domain guardrail.** The main agent needs one because its subject
+has an edge. Here the floor does that job, and the calibration sweep is what
+decided where it goes.
+
+### What the sweep found
+
+`npx tsx evals/calibrate-profile.ts` sweeps candidate floors against
+`evals/cases/profile.json` and reports two numbers that pull against each other:
+recall on questions the corpus can answer, and leak on questions it cannot.
+
+It found that **no floor separates the two sets cleanly**. "What is his salary
+expectation in euros?" scores 0.425 and "what does he think about Kubernetes?"
+scores 0.417, both higher than genuine questions like "what did he study?" at
+0.328. They are about me in vocabulary while being unanswerable from the corpus,
+and no threshold can tell those apart.
+
+That is worth stating rather than hiding, because it changes what the floor is
+for. It does two things well:
+
+- Genuinely unrelated questions — the capital of France, how a diesel engine
+  works — all score below 0.22 and are refused with **no model call at all**.
+- Every question in the golden set clears 0.32, so the floor costs nothing.
+
+The narrow band between reaches the model, which declines from the passages it
+was given. `evals/profile.eval.test.ts` asserts all three behaviours, and runs
+free: the corpus vectors and the golden query vectors are both committed, so the
+test needs no API key.
+
+### Two defects the sweep found, and what fixed them
+
+Both were corpus defects rather than code defects, which is the useful kind to
+find early.
+
+**"How do I contact him?" scored 0.254.** The email address sat at the end of a
+passage that opened with visa status and language levels, and the embedding
+averaged it away. Splitting `CONTACT` out as its own passage lifted the floor
+that still gives total recall from 0.24 to 0.32.
+
+**"What has he actually shipped?" returned nothing useful.** Each project
+passage described one system well, and none of them answered the question of
+what exists in total, so the agent replied that the passages did not specify. A
+`SHIPPED` passage listing the four systems fixed it. The golden set had also
+been too lenient — it accepted a generic passage as a hit — so that case was
+tightened at the same time to demand an actual project.
+
+The lesson in both: a passage should answer one question, and a golden case
+should demand the answer you actually want rather than any answer at all.
+
+---
+
 ## Running it
 
 Requires Node 20+, a Neon Postgres with `pgvector`, and an OpenAI API key. There
@@ -345,6 +413,32 @@ Then open <http://localhost:3000> and walk the four paths with Inspect mode on:
 The last two are wired as one-click suggestions. A guardrail nobody can trigger
 is a claim rather than a demonstration.
 
+### The profile agent
+
+Its corpus is committed, so it works on a fresh clone with only an API key set.
+You need these two commands only after editing `content/profile.ts`:
+
+```bash
+npm run embed:profile
+```
+
+Re-embeds the passages and rewrites `data/profile-corpus.json`. The route refuses
+to answer if this has not been run since the last source edit.
+
+```bash
+npm run embed:profile:eval
+```
+
+Re-embeds the golden queries in `evals/cases/profile.json`, which is what keeps
+`npm run test` free of API calls. Run it after adding or rewording a case.
+
+```bash
+npx tsx evals/calibrate-profile.ts
+```
+
+Sweeps the floor and prints recall against leak, plus the weakest in-corpus
+questions — which is where the next corpus gap is.
+
 ---
 
 ## Layout
@@ -354,6 +448,8 @@ app/
   api/chat/route.ts       SSE endpoint, Node runtime, IP rate-limited
   api/overview/route.ts   first-paint dashboard data, no model call
   api/health/route.ts     what is configured against what is actually loaded
+  api/profile/route.ts    the profile agent: no tools, no database, same guardrails
+  projects/page.tsx       all four systems, in one order
   page.tsx                the page, composed from components/site
 components/
   ChatPanel.tsx           streaming chat, and the inspect switch
@@ -364,6 +460,8 @@ components/
   CitationList.tsx        the passages the answer was actually built from
   EvalMetrics.tsx         the eval bars, shared by the badge and the page
   site/                   the editorial layer: hero, sections, console island
+  site/ProfileAgent.tsx   the floating agent that answers about me
+  site/ThemeToggle.tsx    light and dark, read from the DOM not mirrored in state
 lib/
   ai/loop.ts              the hand-written tool-calling loop
   ai/openai.ts            classify, callTools, streamText, and nothing else
@@ -371,14 +469,19 @@ lib/
   ai/tools/               registry.ts and the three tool declarations
   ai/trace.ts             per-turn measurement
   db/                     schema.sql, client.ts, queries.ts
+  profile/retrieve.ts     in-memory cosine over the committed profile corpus
 evals/
   cases/                  golden sets, with the reasoning for each in the file
   judges/                 faithfulness and relevance, offline only
   run.ts                  the runner, and the report it writes
+  calibrate-profile.ts    sweeps the profile floor: recall against leak
+  profile.eval.test.ts    asserts the three retrieval bands, no API key needed
 scripts/
   sources.json            the URL manifest
   ingest.ts               fetch, extract, chunk, embed, upsert
   seed-telemetry.ts       deterministic synthetic rig data
+  embed-profile.ts        content/profile.ts to data/profile-corpus.json
+content/profile.ts        what the profile agent is allowed to know
 ```
 
 ---

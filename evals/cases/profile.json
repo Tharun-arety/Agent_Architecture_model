@@ -1,0 +1,50 @@
+{
+  "$comment": [
+    "Golden set for the profile agent's retrieval floor.",
+    "",
+    "`inCorpus` questions must surface at least one of their `expect` refs above",
+    "the floor. They are written the way a visitor actually types, including the",
+    "vague and colloquial phrasings, because those are the ones that break",
+    "retrieval and the polished ones are not.",
+    "",
+    "`offCorpus` questions must clear nothing at all. They are the reason the",
+    "floor exists: an agent on a personal site should decline to invent an",
+    "opinion on Kubernetes or a salary expectation rather than oblige.",
+    "",
+    "Swept by `npx tsx evals/calibrate-profile.ts`."
+  ],
+  "inCorpus": [
+    { "query": "What has he actually shipped?", "expect": ["SHIPPED", "PROJ-PDM", "PROJ-COMPLIANCE", "PROJ-TALENTFLOW", "PROJ-AGENT"] },
+    { "query": "What has he built and put into production?", "expect": ["SHIPPED", "PROJ-PDM", "PROJ-COMPLIANCE"] },
+    { "query": "What does he do?", "expect": ["SUMMARY", "WHAT-HE-DOES"] },
+    { "query": "Where does he work now?", "expect": ["ROLE-VEXOS"] },
+    { "query": "Tell me about the ERP and PDM work", "expect": ["PROJ-PDM", "ROLE-VEXOS"] },
+    { "query": "How does he stop an agent from making things up?", "expect": ["GUARDRAILS"] },
+    { "query": "How does he test whether an agent works?", "expect": ["EVALS"] },
+    { "query": "Has he built MCP servers?", "expect": ["MCP"] },
+    { "query": "What is his experience with LangGraph?", "expect": ["PROJ-PDM", "STACK"] },
+    { "query": "Can he work in Germany?", "expect": ["AVAILABILITY"] },
+    { "query": "When is he available to start?", "expect": ["AVAILABILITY"] },
+    { "query": "What is the best way to reach him?", "expect": ["CONTACT"] },
+    { "query": "What did he study?", "expect": ["BACKGROUND"] },
+    { "query": "Does he know Python and TypeScript?", "expect": ["STACK"] },
+    { "query": "Tell me about the compliance automation", "expect": ["PROJ-COMPLIANCE"] },
+    { "query": "What kind of companies does he work with?", "expect": ["ENGAGEMENT"] },
+    { "query": "How would a project with him start?", "expect": ["ENGAGEMENT"] },
+    { "query": "What is the agent on this site?", "expect": ["PROJ-AGENT"] },
+    { "query": "Does he do research?", "expect": ["ROLE-AUGSBURG"] },
+    { "query": "How do I contact him?", "expect": ["CONTACT"] },
+    { "query": "Can he automate a manual process for us?", "expect": ["WHAT-HE-DOES", "PROJ-COMPLIANCE"] },
+    { "query": "What is his recruitment product?", "expect": ["PROJ-TALENTFLOW"] }
+  ],
+  "offCorpus": [
+    { "query": "What is the capital of France?" },
+    { "query": "Write me a poem about the sea" },
+    { "query": "What does he think about Kubernetes?" },
+    { "query": "What is his salary expectation in euros?" },
+    { "query": "Does he have children?" },
+    { "query": "What is the weather in Augsburg tomorrow?" },
+    { "query": "Explain how a diesel engine works" },
+    { "query": "What did he have for breakfast?" }
+  ]
+}

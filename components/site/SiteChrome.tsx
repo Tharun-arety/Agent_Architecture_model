@@ -81,12 +81,12 @@ export function Contact() {
       <div className="shell py-16 lg:py-24">
         <span className="eyebrow">Contact</span>
         <h2 className="display-sm text-ink mt-5 max-w-[22ch]">
-          If your documents and your data should be talking to each other, write to me
+          If people in your company keep asking for something a system already knows, write to me
         </h2>
         <p className="lede mt-4">
-          Tell me what people in your company keep asking for and where the answer currently lives.
-          That is usually enough for me to say whether an agent is the right tool, and what it
-          would take.
+          Tell me which manual process costs the most time, or which question keeps needing three
+          systems to answer. That is usually enough for me to say whether an agent is the right
+          tool and what building it would involve.
         </p>
 
         <a
