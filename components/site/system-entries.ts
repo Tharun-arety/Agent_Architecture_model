@@ -132,8 +132,34 @@ const ENTRIES: Project[] = [
       ],
       sections: [
         {
+          eyebrow: "Why it matters",
+          icon: "question",
+          visual: "refusalEconomics",
+          note: "Two of these cost almost nothing. The third is why the other two exist.",
+          title: "An agent that is confidently wrong once is finished",
+          body: [
+            "The reason guardrails are worth building is not that wrong answers are embarrassing. It is that the three possible outcomes have wildly different costs, and the worst one is the cheapest to produce.",
+            "A refusal costs nothing: nothing clears the floor, no model is called, and the system says so. A grounded answer costs one call and arrives with its sources attached. A confident invention costs less than either to generate, and it costs you the user, because nobody asks a second question after the first made-up one.",
+            "That asymmetry is the whole business case for this kind of work. It is also why the refusals on this page are demonstrated rather than described: a guardrail nobody has watched trigger is a claim, and the claim is exactly the part a buyer cannot verify for themselves.",
+          ],
+        },
+        {
+          eyebrow: "Proof of improvement",
+          icon: "money",
+          visual: "evalProgress",
+          note: "The same 144 cases each time. Only the system changed between runs.",
+          title: "Without a before, the score is just a number I chose to publish",
+          body: [
+            "Any agent can be given a percentage. What makes one meaningful is that it was lower before, that something specific changed, and that the cases did not move in the meantime.",
+            "This suite started at 85.6%. Calibrating the floor took it to 90.3%, fixing the router to 95.2%, and diversifying retrieval to 95.9%. The 144 cases were fixed throughout, so each step measures a change to the system rather than a change to the exam.",
+            "For a company deciding whether to trust this kind of work, that progression is the actual product. It is the difference between someone who believes their agent works and someone who can show you when it did not, what was wrong, and what fixed it.",
+          ],
+        },
+        {
           eyebrow: "Validation",
           icon: "approval",
+          visual: "refusalTrace",
+          note: "A real refused turn. Read the last two figures: no model was called, so it cost nothing.",
           title: "ajv over the same schema the model gets",
           body: [
             "OpenAI tool parameters are JSON Schema already. Validating with ajv against that same literal means one source of truth serves both the model and the validator.",
@@ -143,6 +169,8 @@ const ENTRIES: Project[] = [
         {
           eyebrow: "Calibration",
           icon: "scope",
+          visual: "evidencePane",
+          note: "Six passages cleared the floor and reached the model. Three did not, and they are still on screen.",
           title: "The floor was measured, not chosen",
           body: [
             "The first value was 0.70, which sounded prudent and refused almost every question the system could answer, scoring 8% recall. Sweeping the golden set turned a guess into a measurement and put it at 0.35.",
@@ -152,6 +180,8 @@ const ENTRIES: Project[] = [
         {
           eyebrow: "Evals",
           icon: "thread",
+          visual: "evalReport",
+          note: "The current report, rendered from the same file the badge in the header reads.",
           title: "What the first eval run found",
           body: [
             "It scored 85.6% and surfaced three defects that were mine. The floor was guessed. The router sent datasheet questions to the telemetry agent because they contain metric words. And one Wikipedia article held a third of the index, so broad questions returned five passages from it and nothing else.",
@@ -208,6 +238,30 @@ const ENTRIES: Project[] = [
         "Outreach is triggered by that monitoring. The chase is a consequence of a date crossing a threshold, not of someone remembering.",
       ],
       sections: [
+        {
+          eyebrow: "Why automate this",
+          icon: "question",
+          visual: "workShape",
+          note: "Four of these five point the same way. That is rarer than the pitch for automation suggests.",
+          title: "Not every manual job is worth automating. This one is.",
+          body: [
+            "A lot of automation fails because it is pointed at work that looked repetitive but was actually judgement in disguise. The test I use is four questions: does it happen constantly, are the rules stable, how much judgement does it need, and what does an error cost.",
+            "Compliance certificate handling answers all four the right way. It happens on every supplier and every renewal. The fields wanted are always the issuer, the scope and the expiry. There is almost no judgement involved until something is actually wrong. And an error is expensive and surfaces long after it was made.",
+            "There is a fifth question that matters more than people admit: does anyone want the job. Nobody wants this one, which is why it drifts to whoever is least able to refuse it and why it is the first thing dropped in a busy week.",
+          ],
+        },
+        {
+          eyebrow: "Where the money is",
+          icon: "money",
+          visual: "lapseCost",
+          note: "The hour saved per batch is the visible saving. The audit finding is the one that hurts.",
+          title: "The hour a week is not the expensive part",
+          body: [
+            "Cutting a batch from about 60 minutes to under 2 is a 96% reduction and it is the number that gets quoted, but it is the smaller half of the argument. An hour a week is an hour a week.",
+            "The expensive failure is a certificate that lapsed and nobody noticed. Goods keep arriving against a supplier who is no longer qualified, and nothing looks wrong. It surfaces at audit, as a finding raised against the receiving process rather than against one document, and then the cost is re-qualifying the supplier and deciding what to do about everything received in the meantime.",
+            "Continuous monitoring moves that discovery from the audit to thirty days before expiry, where the whole thing costs one email to a supplier. That shift, from finding out afterwards to knowing in advance, is what is actually being bought.",
+          ],
+        },
         {
           eyebrow: "The boundary",
           icon: "approval",

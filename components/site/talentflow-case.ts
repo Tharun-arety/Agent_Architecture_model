@@ -21,6 +21,30 @@ export const TALENTFLOW_CASE: CaseStudy = {
   ],
   sections: [
     {
+      eyebrow: "Why a system",
+      icon: "question",
+      visual: "vacancyCost",
+      note: "The first two figures are yours to multiply. The third is actionable today.",
+      title: "A spreadsheet cannot tell you what it is costing you",
+      body: [
+        "Email and a spreadsheet work for one open role. They fail at three, and the failure is not dramatic: nobody loses a candidate, people just disagree about where each one is, and nobody can see the pipeline as a whole.",
+        "What is genuinely missing is arithmetic. How long a hire takes, which stage is slow, which channel is worth its cost, how many good people are sitting untouched right now. None of that exists until the pipeline is records rather than messages, and you cannot improve a process whose numbers you do not have.",
+        "The seeded figures make the shape of the cost concrete: 32 days to hire on average, eight seats open across five roles, and a candidate who has been waiting 20 days without anyone touching their file. What an empty seat is worth is your number, not mine, but multiplying it by the first two is the calculation this replaces guesswork with.",
+      ],
+    },
+    {
+      eyebrow: "Where the money is",
+      icon: "money",
+      visual: "sourceMix",
+      note: "Attribution has to be captured when someone applies. It cannot be reconstructed later.",
+      title: "You are paying a percentage for one of these channels",
+      body: [
+        "In the seeded data, 35% of candidates come from the careers site, 21% from LinkedIn, 17% from referrals and 12% inbound. All of those cost you nothing per hire. The remaining 15% comes from an agency, which bills a percentage of salary on every one that lands.",
+        "That is not an argument against agencies. It is an argument for knowing the ratio. If your own careers page and referrals are producing four times the volume of the channel you pay for, that is a budget conversation worth having, and it is invisible until attribution is recorded at the moment someone applies.",
+        "The same data answers the harder question: not just where candidates come from, but where the ones who get hired come from. A channel producing volume that never converts is worse than one producing nothing, because it also consumes screening time.",
+      ],
+    },
+    {
       eyebrow: "The wall",
       icon: "wall",
       note: "The requisition is the same row on both sides, so the advert cannot outlive the role.",

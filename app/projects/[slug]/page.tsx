@@ -26,7 +26,9 @@ import { GithubMark } from "@/components/site/GithubMark";
 import { ProfileAgent } from "@/components/site/ProfileAgent";
 import { ProjectDiagram } from "@/components/site/ProjectDiagram";
 import { Contact, SiteFooter, SiteHeader } from "@/components/site/SiteChrome";
+import { PROTOTYPE_VISUALS } from "@/components/site/prototype-visuals";
 import { StatusChip } from "@/components/site/StatusChip";
+import { VALUE_VISUALS } from "@/components/site/value-visuals";
 import { PROJECTS, bySlug } from "@/components/site/system-entries";
 
 /**
@@ -58,6 +60,10 @@ const NAMED_ICONS: Record<string, LucideIcon> = {
 };
 
 const ICON_CYCLE = [GitBranch, ShieldCheck, Ruler, Link2];
+
+/** Both maps, looked up as one. Kept in separate files because they make
+ *  different kinds of claim, but a section should not have to know which. */
+const VISUALS = { ...CASE_VISUALS, ...VALUE_VISUALS, ...PROTOTYPE_VISUALS };
 
 export function generateStaticParams() {
   return PROJECTS.map((project) => ({ slug: project.slug }));
@@ -209,7 +215,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             main page gives the prototype. A section without its own visual
             falls back to the architecture diagram rather than an empty frame. */}
         {project.caseStudy.sections.map((section, index) => {
-          const Visual = section.visual ? CASE_VISUALS[section.visual] : undefined;
+          const Visual = section.visual ? VISUALS[section.visual] : undefined;
           return (
             <FeatureRow
               key={section.title}
