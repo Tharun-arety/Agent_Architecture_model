@@ -48,13 +48,13 @@ export const PROFILE_DOCS: ProfileDoc[] = [
     // passages did not specify. Each project passage described one system well
     // and none of them answered the question of what exists in total.
     ref: "SHIPPED",
-    title: "What he has built and put into production",
-    text: "Three systems are running in production and one is a public prototype. In production: an agentic PDM, ECM and QMS toolchain that unifies product data, engineering change and quality management behind one interface; an autonomous compliance system that reads certificates, monitors expiries and chases suppliers, cutting a batch from about 60 minutes to under 2; and TalentFlow, an applicant tracking system covering requisition through to hire. The prototype is the magnetocaloric engineering agent on this site, built so its guardrails and eval scores can be inspected while you use it.",
+    title: "What he has built, and what you can open",
+    text: "Three systems were built and put into use: an agentic PDM, ECM and QMS toolchain unifying product data, engineering change and quality management behind one interface; an autonomous compliance system that reads certificates, monitors expiries and chases suppliers, cutting a batch from about 60 minutes to under 2; and TalentFlow, an applicant tracking system covering requisition through to hire. Alongside those, the magnetocaloric engineering agent on this site is a prototype built so its guardrails and eval scores can be inspected while you use it. Two things can be opened right now: that agent, and a public sandbox of the PDM toolchain at agentic-enterprise-tool.vercel.app. The production instances are not his to publish.",
   },
   {
     ref: "PROJ-PDM",
     title: "Agentic PDM, ECM and QMS toolchain",
-    text: "A production system that unifies product data management, engineering change management and quality management behind one interface. Built with FastAPI and LangGraph over PostgreSQL with pgvector and async SQLAlchemy 2. Product data, change requests and quality records previously lived in separate systems, so answering a question about a part meant opening three of them. The agent can now propose a change against the combined record set, and a person approves it before anything reaches a released record. Human-in-the-loop approval is a requirement of the design rather than a setting.",
+    text: "A toolchain that unifies product data management, engineering change management and quality management behind one interface. Built with FastAPI and LangGraph over PostgreSQL with pgvector and async SQLAlchemy 2. Product data, change requests and quality records previously lived in separate systems, so answering a question about a part meant opening three of them. The agent proposes a change against the combined record set, and a person approves it before anything reaches a released record. Human-in-the-loop approval is a requirement of the design rather than a setting. A public sandbox of it runs at agentic-enterprise-tool.vercel.app, seeded with invented records and no customer data; the production instance is not public.",
   },
   {
     ref: "PROJ-COMPLIANCE",

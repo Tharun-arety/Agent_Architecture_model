@@ -45,9 +45,10 @@ export function ProjectCard({ project }: { project: Project }) {
             href={project.liveUrl}
             target="_blank"
             rel="noopener noreferrer"
+            title={project.liveNote}
             className="text-dim hover:text-ink inline-flex items-center gap-1.5 text-[12.5px] transition-colors"
           >
-            Live app
+            {project.liveLabel ?? "Live app"}
             <ArrowUpRight className="size-3.5" aria-hidden="true" />
           </a>
         )}

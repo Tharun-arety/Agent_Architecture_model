@@ -47,6 +47,11 @@ export type Project = {
   outcome: string;
   stack: string[];
   liveUrl?: string;
+  /** Button text. Defaults to "Live app" when the URL is the system itself. */
+  liveLabel?: string;
+  /** Shown beside the link. Required when the URL is a demonstration rather
+   *  than the production system, so the button cannot overstate what it opens. */
+  liveNote?: string;
   repoUrl?: string;
   /** Renders the live console on the main page and in its case study. */
   featured?: boolean;
@@ -72,6 +77,10 @@ const ENTRIES: Project[] = [
     outcome:
       "Change management runs against one set of data instead of three, and the agent drafts the change while a person keeps the decision.",
     stack: ["FastAPI", "LangGraph", "PostgreSQL", "pgvector", "SQLAlchemy 2 async"],
+    liveUrl: "https://agentic-enterprise-tool.vercel.app/",
+    liveLabel: "Open the sandbox",
+    liveNote:
+      "A public sandbox of the same toolchain, seeded with invented records and no customer data. The production instance is not mine to publish.",
     caseStudy: {
       context: [
         "A manufacturer's engineering record is not one thing. The bill of materials and part revisions sit in PDM. The requests to change them sit in ECM. The inspection results, non-conformances and corrective actions that justify a change sit in QMS. Each system is reasonable on its own, and each was bought to solve its own problem.",

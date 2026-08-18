@@ -79,7 +79,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                 rel="noopener noreferrer"
                 className="border-cold/50 bg-cold/10 text-cold hover:bg-cold/20 inline-flex h-11 items-center gap-2 rounded-full border px-5 text-[13px] font-medium transition-colors"
               >
-                Open the live app
+                {project.liveLabel ?? "Open the live app"}
                 <ArrowUpRight className="size-4" aria-hidden="true" />
               </a>
             )}
@@ -95,6 +95,12 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               </a>
             )}
           </div>
+
+          {project.liveNote && (
+            <p className="text-faint mt-4 max-w-[54ch] text-[12px] leading-relaxed">
+              {project.liveNote}
+            </p>
+          )}
 
           <dl className="border-rule text-faint mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t pt-6 font-mono text-[11px]">
             <Meta label="domain" value={project.domain} />
