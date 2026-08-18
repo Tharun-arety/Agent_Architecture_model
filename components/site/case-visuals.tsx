@@ -398,6 +398,135 @@ export function CadenceSplit() {
   );
 }
 
+
+/* ── 01 · what a report can answer, and what it cannot ───────────────── */
+
+const BOUNDED = [
+  "How many parts are at revision C?",
+  "Which NCRs are open this month?",
+  "What is the BOM cost of ECL-SYS-1000?",
+];
+
+const UNBOUNDED = [
+  "Why did this part change, and did the quality issue behind it ever close?",
+  "Which built units contain the lot that failed, and what would recalling them cost?",
+  "Has anything like this happened before on another product line?",
+];
+
+export function QuestionShapes() {
+  return (
+    <Shell>
+      <Head label="two kinds of question" />
+      <div className="border-rule border-b px-3 py-2.5">
+        <p className="flex items-baseline gap-2">
+          <span className="micro">a report answers</span>
+          <span className="text-faint ml-auto font-mono text-[9px]">known in advance</span>
+        </p>
+        <ul className="mt-1.5 space-y-1">
+          {BOUNDED.map((q) => (
+            <li key={q} className="text-dim text-[11px] leading-snug">
+              {q}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="px-3 py-2.5">
+        <p className="flex items-baseline gap-2">
+          <span className="micro">someone has to go and look</span>
+          <span className="text-warm ml-auto font-mono text-[9px]">crosses systems</span>
+        </p>
+        <ul className="mt-1.5 space-y-1">
+          {UNBOUNDED.map((q) => (
+            <li key={q} className="text-ink text-[11px] leading-snug">
+              {q}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <p className="text-faint border-rule border-t px-3 py-2 text-[10.5px] leading-relaxed">
+        You can build a report for the first list because you can write it down. The second list is
+        the one that costs an afternoon, and it is different every time.
+      </p>
+    </Shell>
+  );
+}
+
+/* ── 01 · what an impact assessment freezes ──────────────────────────── */
+
+const IMPACT = [
+  { label: "Product", value: "ECL-SYS-1000", note: "1 product line reached" },
+  { label: "Units", value: "2 built", note: "which ones already shipped" },
+  { label: "Documents", value: "drawings, baselines", note: "3 captured baselines contain it" },
+  { label: "Revalidation", value: "required", note: "what has to be re-tested" },
+  { label: "Cost exposure", value: "frozen for review", note: "before anyone approves" },
+];
+
+export function ImpactScope() {
+  return (
+    <Shell>
+      <Head
+        label="ecr-26-002 · impact assessment"
+        right={<span className="text-warm font-mono text-[10px]">before approval</span>}
+      />
+      <ul className="divide-rule divide-y">
+        {IMPACT.map((row) => (
+          <li key={row.label} className="flex items-baseline gap-3 px-3 py-2">
+            <span className="micro w-24 shrink-0">{row.label}</span>
+            <span className="text-ink min-w-0 flex-1 font-mono text-[11px]">{row.value}</span>
+            <span className="text-faint shrink-0 text-[9.5px]">{row.note}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="border-rule border-t px-3 py-2.5">
+        <p className="micro mb-1">on release, the MBOM was rebuilt and repriced</p>
+        <p className="flex items-baseline gap-2 font-mono">
+          <span className="tnum text-faint text-[12px] line-through">EUR 2,656.81</span>
+          <span className="text-faint text-[10px]">→</span>
+          <span className="tnum text-ink text-[14px]">EUR 2,620.81</span>
+          <span className="tnum text-cold ml-auto text-[11px]">−36.00</span>
+        </p>
+      </div>
+      <p className="text-faint border-rule border-t px-3 py-2 text-[10.5px] leading-relaxed">
+        The expensive mistake is approving a change whose full reach nobody worked out. This is that
+        work, done before the decision rather than discovered after it.
+      </p>
+    </Shell>
+  );
+}
+
+/* ── 01 · what adoption actually involves ────────────────────────────── */
+
+const ADOPTION = [
+  { phase: "Stays as it is", detail: "PDM, ERP, QMS and the rest keep holding the records of truth. Nothing is migrated.", tone: "cold" },
+  { phase: "Added", detail: "Read-only connectors, an index over the combined record set, and the agent.", tone: "ink" },
+  { phase: "Added", detail: "An approval inbox, and the roles that decide who may approve what.", tone: "ink" },
+  { phase: "Never added", detail: "Any path that lets the agent write to a released record on its own.", tone: "warm" },
+];
+
+export function AdoptionPath() {
+  return (
+    <Shell>
+      <Head label="what changes on your side" />
+      <ul className="divide-rule divide-y">
+        {ADOPTION.map((row, index) => (
+          <li key={index} className="px-3 py-2.5">
+            <p
+              className={`micro ${row.tone === "cold" ? "text-cold" : row.tone === "warm" ? "text-warm" : ""}`}
+            >
+              {row.phase}
+            </p>
+            <p className="text-dim mt-1 text-[11.5px] leading-snug">{row.detail}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="text-faint border-rule border-t px-3 py-2 text-[10.5px] leading-relaxed">
+        Read-only first is not caution for its own sake. It means the worst outcome during a trial
+        is a wrong answer on a screen, which costs a conversation rather than a record.
+      </p>
+    </Shell>
+  );
+}
+
 /** Every visual, keyed by the name a case study section refers to. */
 export const CASE_VISUALS: Record<string, () => React.ReactElement> = {
   goldenThread: GoldenThread,
@@ -408,4 +537,7 @@ export const CASE_VISUALS: Record<string, () => React.ReactElement> = {
   attribution: Attribution,
   schemaGate: SchemaGate,
   cadenceSplit: CadenceSplit,
+  questionShapes: QuestionShapes,
+  impactScope: ImpactScope,
+  adoptionPath: AdoptionPath,
 };

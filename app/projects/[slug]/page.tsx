@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
+  Banknote,
+  Clock,
   GitBranch,
+  HelpCircle,
   Link2,
   MousePointerClick,
+  PlugZap,
   Ruler,
   ShieldCheck,
+  SignpostBig,
+  Users,
 } from "lucide-react";
 
 import { CASE_VISUALS } from "@/components/site/case-visuals";
@@ -35,9 +42,22 @@ import { PROJECTS, bySlug } from "@/components/site/system-entries";
  * implies otherwise.
  */
 
-/** Cycled through the sections, so a case study with four of them does not
- *  repeat one icon twice in a row. */
-const SECTION_ICONS = [GitBranch, ShieldCheck, Ruler, Link2];
+/** A section can name its own icon; anything unnamed falls back to the cycle,
+ *  so adding a section never requires touching this file. */
+const NAMED_ICONS: Record<string, LucideIcon> = {
+  question: HelpCircle,
+  money: Banknote,
+  adoption: PlugZap,
+  thread: GitBranch,
+  approval: ShieldCheck,
+  scope: Ruler,
+  wall: SignpostBig,
+  people: Users,
+  time: Clock,
+  link: Link2,
+};
+
+const ICON_CYCLE = [GitBranch, ShieldCheck, Ruler, Link2];
 
 export function generateStaticParams() {
   return PROJECTS.map((project) => ({ slug: project.slug }));
@@ -194,7 +214,10 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <FeatureRow
               key={section.title}
               eyebrow={section.eyebrow}
-              icon={SECTION_ICONS[index % SECTION_ICONS.length]}
+              icon={
+                (section.icon ? NAMED_ICONS[section.icon] : undefined) ??
+                ICON_CYCLE[index % ICON_CYCLE.length]
+              }
               title={section.title}
               reverse={index % 2 === 1}
               veiled={index % 2 === 0}

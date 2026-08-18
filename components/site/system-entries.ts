@@ -27,6 +27,8 @@ export type CaseSection = {
   /** Key into CASE_VISUALS. A section without one falls back to the
    *  architecture diagram, which is better than an empty frame. */
   visual?: string;
+  /** Key into SECTION_ICONS. Falls back to a positional cycle. */
+  icon?: string;
   /** One line under the frame, for what the visual cannot say itself. */
   note?: string;
 };
@@ -131,6 +133,7 @@ const ENTRIES: Project[] = [
       sections: [
         {
           eyebrow: "Validation",
+          icon: "approval",
           title: "ajv over the same schema the model gets",
           body: [
             "OpenAI tool parameters are JSON Schema already. Validating with ajv against that same literal means one source of truth serves both the model and the validator.",
@@ -139,6 +142,7 @@ const ENTRIES: Project[] = [
         },
         {
           eyebrow: "Calibration",
+          icon: "scope",
           title: "The floor was measured, not chosen",
           body: [
             "The first value was 0.70, which sounded prudent and refused almost every question the system could answer, scoring 8% recall. Sweeping the golden set turned a guess into a measurement and put it at 0.35.",
@@ -147,6 +151,7 @@ const ENTRIES: Project[] = [
         },
         {
           eyebrow: "Evals",
+          icon: "thread",
           title: "What the first eval run found",
           body: [
             "It scored 85.6% and surfaced three defects that were mine. The floor was guessed. The router sent datasheet questions to the telemetry agent because they contain metric words. And one Wikipedia article held a third of the index, so broad questions returned five passages from it and nothing else.",
@@ -205,6 +210,7 @@ const ENTRIES: Project[] = [
       sections: [
         {
           eyebrow: "The boundary",
+          icon: "approval",
           visual: "schemaGate",
           note: "A well-formed wrong answer is the failure mode. Only the schema is positioned to catch it.",
           title: "Schema validation is the load-bearing part",
@@ -215,6 +221,7 @@ const ENTRIES: Project[] = [
         },
         {
           eyebrow: "Cadence",
+          icon: "time",
           visual: "cadenceSplit",
           note: "Two jobs with different cost shapes, deliberately not run on the same schedule.",
           title: "Why monitoring is separate from reading",

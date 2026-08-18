@@ -22,6 +22,7 @@ export const TALENTFLOW_CASE: CaseStudy = {
   sections: [
     {
       eyebrow: "The wall",
+      icon: "wall",
       note: "The requisition is the same row on both sides, so the advert cannot outlive the role.",
       title: "Two audiences, one record",
       body: [
@@ -31,6 +32,7 @@ export const TALENTFLOW_CASE: CaseStudy = {
     },
     {
       eyebrow: "Measurement",
+      icon: "scope",
       visual: "funnel",
       note: "Both counts on one axis. The gap between the bars is what a board-shaped funnel throws away.",
       title: "Counting who reached a stage, not who is sitting in it",
@@ -41,6 +43,7 @@ export const TALENTFLOW_CASE: CaseStudy = {
     },
     {
       eyebrow: "Neglect",
+      icon: "time",
       visual: "dwell",
       note: "Average dwell per stage, and the four candidates who have been waiting longest right now.",
       title: "Surfacing neglect, not just position",
@@ -51,6 +54,7 @@ export const TALENTFLOW_CASE: CaseStudy = {
     },
     {
       eyebrow: "Attribution",
+      icon: "people",
       visual: "attribution",
       note: "The activity feed reads as sentences, because a decision about a person has an author.",
       title: "Every move has a name on it",

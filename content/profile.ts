@@ -72,6 +72,26 @@ export const PROFILE_DOCS: ProfileDoc[] = [
     text: "An applicant tracking system covering the whole recruitment pipeline, from opening a requisition through pipeline stages and candidate records to making the offer. Built with Next.js and PostgreSQL using Drizzle, with a typed schema so pipeline states are enforced by the database rather than by convention. One database serves two audiences that never see each other: a public job board at talentflow-virid-zeta.vercel.app/careers open to anyone, and an invite-only hiring pipeline behind Google SSO. A requisition is the same record on both sides, so closing it internally takes the advert down. It reports a conversion funnel counting who reached each stage rather than who is sitting in it, time in stage, idle days per candidate and source attribution, and every stage move is recorded against the person who made it.",
   },
   {
+    // Added because the case study now answers this and the agent could not.
+    // Visitors from small companies ask the business question first.
+    ref: "VALUE",
+    title: "Why an agent rather than a dashboard",
+    text: "A dashboard answers the questions you already knew to ask: how many parts sit at a revision, which non-conformances are open, what a bill of materials costs. Those can be written down in advance, so a report can be built for them. The questions that cost an afternoon are the follow-ups nobody can write down in advance, and each one crosses systems: why did this part change and did the issue behind it ever close, which shipped units contain the failed lot, has this happened before on another product line. That is where an agent earns its place, because the set of questions is open-ended and a report has to be built one question at a time. Smaller manufacturers feel this more acutely than large ones, because they run the same five systems and the same regulated paper trail with nobody whose job is to sit between them.",
+  },
+  {
+    // Split out of VALUE after calibration: "how does this save money?" scored
+    // 0.292 against the combined passage, because the cost argument was one
+    // clause inside a longer answer about question shapes.
+    ref: "SAVINGS",
+    title: "How it saves money, and where the cost actually sits",
+    text: "There are two savings and the second is much larger. The first is the research time: an engineer no longer spends an afternoon opening five systems and reconciling identifiers that do not agree. The second is avoided rework. In engineering change the expensive failure is approving a change whose full reach nobody scoped: a missed revalidation that becomes a recall conversation, a drawing that also needed revising, units already shipped that nobody flagged, a bill of materials price that moved and was never repriced so margin leaks on every unit built until someone notices. Generating the impact assessment before the decision turns those from later discoveries into items on the screen, and on release the manufacturing BOM is rebuilt and repriced automatically so the number people quote from is the number the change produced. Tharun does not publish an ROI figure for this, because the two numbers it is measured against are what an engineering change costs your team to research and what one badly scoped change has already cost you, and both of those are yours rather than his.",
+  },
+  {
+    ref: "ADOPTION",
+    title: "What adopting it actually involves",
+    text: "Nothing is migrated. Existing PDM, ERP and QMS systems keep holding the records of truth, and the connectors start read-only. What is added is an index over the combined record set, the agent, and an approval inbox with the roles that decide who may approve what. Read-only first is a commercial decision as much as a technical one: the worst outcome during a trial is a wrong answer on a screen, which costs a conversation rather than a record, so the trial can run against real data instead of a sanitised copy. Writes are enabled per tool, and each mutating tool is paired with an approving role before it is available at all. There is no configuration in which the agent applies a change on its own.",
+  },
+  {
     ref: "GUARDRAILS",
     title: "How he makes agents safe to deploy",
     text: "Checks run in three places. Before the first model call, deterministic pattern checks redact credentials and refuse prompt injection, because a filter that has to ask a model whether something is an injection can be talked out of the answer. Before any tool runs, arguments are validated against the same JSON Schema the model was given, plus bounds only the database knows, and a rejection goes back to the model as a message it can correct from. Around the answer, a calibrated similarity floor decides whether there is enough evidence to answer at all, and every citation is checked against what retrieval actually returned.",
