@@ -1,98 +1,68 @@
 /**
- * One project, in the same order for all of them.
+ * One project in the grid.
  *
- * Problem, then what was built, then what changed. The prototype on the
- * homepage follows the same order and then adds a live console, so reading a
- * second project costs nothing once you have read the first.
+ * Compact on purpose: the grid is an index, and the case study is where the
+ * detail lives. Every card exposes the same three affordances in the same
+ * place — read the case study, open the live app, read the source — and shows
+ * only the ones that exist.
  */
 
-import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { GithubMark } from "@/components/site/GithubMark";
+import { StatusChip } from "@/components/site/StatusChip";
 import type { Project } from "@/components/site/system-entries";
-
-const STATUS_LABEL: Record<Project["status"], string> = {
-  prototype: "Prototype",
-  live: "Live",
-  "in-progress": "In progress",
-};
 
 export function ProjectCard({ project }: { project: Project }) {
   return (
-    <article className="border-rule border-t pt-8">
-      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+    <article className="frame flex flex-col p-6">
+      <div className="flex items-baseline gap-3">
         <span className="tnum text-faint font-mono text-[12px]">{project.index}</span>
-        <h3 className="text-ink min-w-0 flex-1 text-[19px] leading-snug font-medium">
-          {project.title}
-        </h3>
-        <span
-          className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] tracking-[0.14em] uppercase ${
-            project.status === "live"
-              ? "border-cold/50 text-cold"
-              : "border-rule text-faint"
-          }`}
-        >
-          {STATUS_LABEL[project.status]}
-        </span>
+        <StatusChip status={project.status} className="ml-auto" />
       </div>
 
-      <p className="lede mt-4 max-w-[62ch]">{project.summary}</p>
+      <h3 className="text-ink mt-3 text-[17px] leading-snug font-medium">{project.title}</h3>
+      <p className="text-dim mt-2.5 text-[13.5px] leading-[1.65]">{project.summary}</p>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-3 lg:gap-12">
-        <div>
-          <h4 className="legend">The problem</h4>
-          <p className="text-dim mt-3 text-[13.5px] leading-[1.7]">{project.problem}</p>
-        </div>
+      <p className="text-faint mt-4 font-mono text-[10px] leading-relaxed">
+        {project.stack.join(" · ")}
+      </p>
 
-        <div>
-          <h4 className="legend">What I built</h4>
-          <ul className="mt-3 space-y-2.5">
-            {project.built.map((item) => (
-              <li key={item} className="text-dim text-[13.5px] leading-[1.7]">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* mt-auto keeps the action row on the bottom edge, so a row of cards
+          with different amounts of text still lines its links up. */}
+      <div className="border-rule mt-auto flex flex-wrap items-center gap-x-5 gap-y-2 border-t pt-4">
+        <Link
+          href={`/projects/${project.slug}`}
+          className="text-cold hover:text-ink inline-flex items-center gap-1.5 text-[12.5px] font-medium transition-colors"
+        >
+          Case study
+          <ArrowRight className="size-3.5" aria-hidden="true" />
+        </Link>
 
-        <div>
-          <h4 className="legend">What changed</h4>
-          <p className="text-dim mt-3 text-[13.5px] leading-[1.7]">{project.outcome}</p>
+        {project.liveUrl && (
+          <a
+            href={project.liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-dim hover:text-ink inline-flex items-center gap-1.5 text-[12.5px] transition-colors"
+          >
+            Live app
+            <ArrowUpRight className="size-3.5" aria-hidden="true" />
+          </a>
+        )}
 
-          <dl className="mt-5">
-            <dt className="micro">stack</dt>
-            <dd className="text-faint mt-1.5 font-mono text-[11px] leading-relaxed">
-              {project.stack.join(" · ")}
-            </dd>
-          </dl>
-
-          {(project.liveUrl || project.repoUrl) && (
-            <div className="mt-5 flex flex-wrap gap-4">
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cold hover:text-ink inline-flex items-center gap-1.5 text-[12px] transition-colors"
-                >
-                  Visit
-                  <ArrowUpRight className="size-3.5" aria-hidden="true" />
-                </a>
-              )}
-              {project.repoUrl && (
-                <a
-                  href={project.repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-dim hover:text-ink inline-flex items-center gap-1.5 text-[12px] transition-colors"
-                >
-                  <GithubMark className="size-3.5" />
-                  Source
-                </a>
-              )}
-            </div>
-          )}
-        </div>
+        {project.repoUrl && (
+          <a
+            href={project.repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-dim hover:text-ink inline-flex items-center gap-1.5 text-[12.5px] transition-colors"
+          >
+            <GithubMark className="size-3.5" />
+            Source
+          </a>
+        )}
       </div>
     </article>
   );
