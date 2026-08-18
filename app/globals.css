@@ -1,26 +1,17 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
- * Two themes, one set of names.
+ * A lab instrument faceplate, not a dashboard.
  *
- * Every surface token is named for its job rather than its colour, so a
- * component never asks for "dark grey". It asks for the recessed surface, or
- * the raised one, and the theme decides what that means. The elevation order
- * holds in both directions:
+ * The palette is two-pole because the subject is: magnetocaloric cooling works
+ * by magnetising (the material warms) and demagnetising (it cools). Cold is
+ * the verified state — a reading inside its limit, a passage above the
+ * grounding floor. Warm is attention, hot is a breach. That mapping is the same
+ * whether the thing being judged is a temperature or a cosine similarity, which
+ * is what lets one visual language cover telemetry, retrieval and evals.
  *
- *   inset  <  veil  <  ground  <  panel  <  raised
- *
- * In dark that runs black to grey. In light it runs grey to white. Either way
- * the agent panel sits on `raised` and reads as the nearest thing to the
- * viewer, which is the whole point of that decision.
- *
- * The three verdict colours are the exception, because they carry meaning
- * rather than mood. Cold is verified: inside a limit, above the floor. Warm is
- * attention. Hot is a breach. Light mode darkens and saturates them so they
- * stay legible on a pale ground, but the mapping never changes.
- *
- * Dark is the default. An inline script in `layout.tsx` resolves the stored or
- * system preference and stamps `data-theme` before first paint.
+ * The ground is a cold blue-black rather than a neutral near-black, so the cyan
+ * reads as belonging to the surface rather than sitting on top of it.
  * ------------------------------------------------------------------------ */
 
 @theme {
@@ -28,7 +19,6 @@
   --color-panel: #121a21;
   --color-raised: #17222b;
   --color-inset: #0d151b;
-  --color-veil: #0f171e;
 
   --color-rule: #22303c;
   --color-rule-strong: #35495c;
@@ -37,57 +27,21 @@
   --color-dim: #93a7b8;
   --color-faint: #7a8b9c;
 
-  /* Verified: inside limits, above the floor. */
+  /* Demagnetised: verified, grounded, inside limits. */
   --color-cold: #57d7e0;
   --color-cold-dim: #1e5c66;
-  /* Measured, worth attention. */
+  /* Magnetised: measured, worth attention. */
   --color-warm: #f2a65a;
-  /* Outside a limit, or blocked by a guardrail. */
+  /* Breach: outside a limit, blocked by a guardrail. */
   --color-hot: #e5644e;
 
   --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "Cascadia Mono", monospace;
 }
 
-:root {
-  color-scheme: dark;
-  /* A card lifts off a dark ground with a deep, tight shadow. On a light ground
-     the same shadow reads as dirt, so each theme sets its own. */
-  --frame-shadow:
-    0 1px 0 0 rgb(255 255 255 / 0.04) inset,
-    0 18px 40px -24px rgb(0 0 0 / 0.8);
-}
-
-/* Warm off-white rather than pure white: white pages glare, and the slight
-   warmth stops the greys reading as blue. */
-:root[data-theme="light"] {
-  color-scheme: light;
-  --frame-shadow:
-    0 1px 0 0 rgb(255 255 255 / 0.9) inset,
-    0 10px 26px -18px rgb(20 24 28 / 0.28);
-
-  --color-ground: #f4f4f1;
-  --color-panel: #fbfbfa;
-  --color-raised: #ffffff;
-  --color-inset: #ebebe7;
-  --color-veil: #ebebe7;
-
-  --color-rule: #dedcd6;
-  --color-rule-strong: #b9b6ad;
-
-  --color-ink: #14181c;
-  --color-dim: #4c545c;
-  --color-faint: #5d656d;
-
-  --color-cold: #0a6470;
-  --color-cold-dim: #a7dde3;
-  --color-warm: #9a5b12;
-  --color-hot: #b53826;
-}
-
 html,
 body {
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
@@ -100,7 +54,7 @@ body {
 
 @layer components {
   /* Silkscreened panel legend. Uppercase, widely tracked, with a hairline
-     running to the edge, the way a section is labelled on a real faceplate.
+     running to the edge — the way a section is labelled on a real faceplate.
      Encodes a true division of the instrument rather than decorating one. */
   .legend {
     display: flex;
@@ -121,7 +75,7 @@ body {
 
   /* The signature. A labelled threshold with values sitting either side of it.
      Used for the acceptance limit on the chart, the grounding floor in the
-     evidence pane, and the target line on the eval bars, because in this
+     evidence pane, and the target line on the eval bars — because in this
      system they are all the same statement. */
   .threshold {
     position: relative;
@@ -210,142 +164,4 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* ---------------------------------------------------------------------------
- * The editorial layer.
- *
- * The console below is an instrument: sharp corners, dense readouts, a palette
- * where every colour is a verdict. The page around it is a different job. Its
- * reader is deciding whether to start a conversation, so it gets whitespace,
- * large type and rounded framing instead.
- *
- * Rounding lives only here. Nothing in this block is used inside the console.
- * ------------------------------------------------------------------------ */
-
-@theme {
-  --radius-frame: 16px;
-  --radius-chip: 999px;
-}
-
-@layer components {
-  /* The framing card. One shadow, no gradient, no glow: the border and a single
-     top highlight are enough to lift it off the ground. */
-  .frame {
-    background: var(--color-panel);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-frame);
-    overflow: hidden;
-    box-shadow: var(--frame-shadow);
-  }
-
-  .display {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 4.5vw, 3.25rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.06;
-    text-wrap: balance;
-  }
-
-  .display-sm {
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 2.6vw, 2rem);
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    line-height: 1.15;
-    text-wrap: balance;
-  }
-
-  .lede {
-    font-size: 1.0625rem;
-    line-height: 1.65;
-    color: var(--color-dim);
-    max-width: 46ch;
-  }
-
-  /* The pill above a headline. */
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.3125rem 0.6875rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-chip);
-    background: var(--color-raised);
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--color-dim);
-  }
-
-  .shell {
-    width: 100%;
-    max-width: 1200px;
-    margin-inline: auto;
-    padding-inline: 1.25rem;
-  }
-  @media (min-width: 1024px) {
-    .shell {
-      padding-inline: 2rem;
-    }
-  }
-}
-
-/* Anchor targets have to clear the sticky header, or every jump in the nav
-   lands with the heading hidden underneath it. */
-[id] {
-  scroll-margin-top: 5.5rem;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-/* A panel that scrolls internally sits inside a page that also scrolls. Without
-   this, reaching the end of the transcript starts dragging the page. */
-.pane-scroll {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-/* Taps resolve immediately and choose their own highlight. */
-@layer base {
-  a,
-  button,
-  [role="switch"],
-  textarea {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: rgb(87 215 224 / 0.15);
-  }
-}
-
-/* Visible only once tabbed to. */
-.skip-link {
-  position: absolute;
-  left: 0.75rem;
-  top: -3rem;
-  z-index: 60;
-  padding: 0.5rem 0.875rem;
-  background: var(--color-raised);
-  border: 1px solid var(--color-cold);
-  color: var(--color-ink);
-  font-size: 12px;
-  transition: top 140ms ease-out;
-}
-.skip-link:focus {
-  top: 0.75rem;
-}
-
-/* Show one icon per theme. Both are in the markup so the toggle looks correct
-   on the very first paint, before any JavaScript has run. */
-.light-only {
-  display: none;
-}
-:root[data-theme="light"] .light-only {
-  display: block;
-}
-:root[data-theme="light"] .dark-only {
-  display: none;
 }

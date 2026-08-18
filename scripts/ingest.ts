@@ -36,7 +36,7 @@ const SNAPSHOT_PATH = join(HERE, "..", "evals", "corpus-snapshot.json");
 const SCHEMA_PATH = join(HERE, "..", "lib", "db", "schema.sql");
 
 const USER_AGENT =
-  "magnetocaloric-agent-poc/0.1 (portfolio project; contact via repository)";
+  "magnotherm-agentic-poc/0.1 (portfolio project; contact via repository)";
 
 type Source = {
   sourceRef: string;

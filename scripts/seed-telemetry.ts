@@ -4,8 +4,8 @@
  *   npm run seed:telemetry
  *
  * This data is generated, and the UI says so on every screen that shows it. The
- * numbers are invented and must never be presented as any company's real
- * measurements.
+ * numbers are not MAGNOTHERM's measurements and must never be presented as if
+ * they were.
  *
  * What is *not* pretend is the shape, because that is what the agent and the
  * guardrails are actually exercised against:

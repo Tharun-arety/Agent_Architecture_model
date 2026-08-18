@@ -56,7 +56,7 @@ export const fail = (
  *  stops matching its test is a regression nobody notices. */
 export const REFUSAL = {
   offTopic:
-    "System restricted to the magnetocaloric engineering corpus and the test-rig telemetry it holds.",
+    "System restricted to MAGNOTHERM test rig data and engineering documentation.",
   injection:
     "That request looks like an attempt to change my instructions rather than a question about the engineering data, so I have not acted on it. Ask about the corpus or the test rigs and I will.",
   ungrounded:

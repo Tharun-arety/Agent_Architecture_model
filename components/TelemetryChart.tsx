@@ -19,6 +19,7 @@
 
 import * as React from "react";
 import {
+  Area,
   CartesianGrid,
   ComposedChart,
   Line,
@@ -51,7 +52,7 @@ export function TelemetryChart({ data }: { data: TelemetryResult }) {
   const [selected, setActive] = React.useState<string | null>(null);
 
   // Open on a metric that has something to show. Metrics arrive alphabetically,
-  // which puts cooling capacity first, a flat line with noise on it, and the
+  // which puts cooling capacity first — a flat line with noise on it, and the
   // least informative thing a visitor could land on. A limit breach is the
   // reason someone opened this pane.
   const fallback = data.summaries.find((s) => s.breaches > 0)?.metric ?? metrics[0] ?? "";
@@ -63,7 +64,7 @@ export function TelemetryChart({ data }: { data: TelemetryResult }) {
   return (
     <section className="flex h-full min-h-0 flex-col">
       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pb-2">
-        <h3 className="legend shrink-0 after:hidden">Rig telemetry</h3>
+        <h2 className="legend shrink-0 after:hidden">Rig telemetry</h2>
         <p className="text-faint min-w-0 flex-1 truncate font-mono text-[11px]">
           {data.rig.rigId} · {data.rig.label}
         </p>
@@ -127,6 +128,13 @@ export function TelemetryChart({ data }: { data: TelemetryResult }) {
         <div className="min-h-0 flex-1 p-2">
           <ResponsiveContainer width="100%" height="100%" minHeight={180}>
             <ComposedChart data={series} margin={{ top: 10, right: 10, bottom: 2, left: -14 }}>
+              <defs>
+                <linearGradient id="trace-fill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-cold)" stopOpacity={0.16} />
+                  <stop offset="100%" stopColor="var(--color-cold)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+
               <CartesianGrid stroke="var(--color-rule)" strokeDasharray="1 5" vertical={false} />
               <XAxis
                 dataKey="recordedAt"
@@ -213,8 +221,13 @@ export function TelemetryChart({ data }: { data: TelemetryResult }) {
                 />
               )}
 
-              {/* One trace, no fill. The line and the shaded out-of-limit band
-                  both carry meaning; a gradient under the line carried none. */}
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="none"
+                fill="url(#trace-fill)"
+                isAnimationActive={false}
+              />
               <Line
                 type="monotone"
                 dataKey="value"

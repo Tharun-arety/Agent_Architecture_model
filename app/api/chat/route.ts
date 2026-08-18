@@ -1,5 +1,5 @@
 /**
- * POST /api/chat. One agent turn, streamed as Server-Sent Events.
+ * POST /api/chat — one agent turn, streamed as Server-Sent Events.
  *
  * Frames:
  *   agent_state  {agent, status, detail?}   what the pipeline is doing

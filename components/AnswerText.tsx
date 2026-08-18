@@ -10,7 +10,7 @@
  * MT-TECH says X" is one click to verify rather than a claim.
  *
  * A reference the retrieval did not return is not made a link. It renders in
- * the breach colour with a `?`, putting the `grounding.citations` verdict in
+ * the breach colour with a `?` — the `grounding.citations` verdict placed in
  * the sentence making the claim, rather than only in the inspector.
  */
 
