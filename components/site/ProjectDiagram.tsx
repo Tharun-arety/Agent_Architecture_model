@@ -102,42 +102,62 @@ function Frame({ children, viewBox, className }: { children: React.ReactNode; vi
   );
 }
 
-/** PDM, ECM and QMS behind one service, with the approval gate on the only
- *  path to a released record. */
+/** Eleven domains readable, nothing writable without a named approval. */
 function PdmDiagram({ className }: DiagramProps) {
   return (
-    <Frame viewBox="0 0 600 250" className={className}>
+    <Frame viewBox="0 0 600 272" className={className}>
       <text x={0} y={10} fill={FAINT} style={mono}>
-        THREE RECORD SETS
+        ELEVEN RECORD DOMAINS
       </text>
-      <Box x={0} y={20} w={110} h={44} title="PDM" sub="BOM, revisions" dashed />
-      <Box x={0} y={74} w={110} h={44} title="ECM" sub="change requests" dashed />
-      <Box x={0} y={128} w={110} h={44} title="QMS" sub="findings, CAPA" dashed />
-
-      <Arrow x1={112} y1={42} x2={168} y2={82} />
-      <Arrow x1={112} y1={96} x2={168} y2={96} />
-      <Arrow x1={112} y1={150} x2={168} y2={110} />
-
-      <Box x={170} y={62} w={120} h={68} title="Retrieval" sub="pgvector" />
-      <text x={230} y={146} textAnchor="middle" fill={FAINT} style={mono}>
-        one index, three sources
+      <Box x={0} y={18} w={104} h={34} title="PDM" dashed />
+      <Box x={0} y={58} w={104} h={34} title="ECM" dashed />
+      <Box x={0} y={98} w={104} h={34} title="QMS" dashed />
+      <Box x={0} y={138} w={104} h={34} title="Procurement" dashed />
+      <text x={52} y={176} textAnchor="middle" fill={FAINT} style={mono}>
+        + 7 more
       </text>
 
-      <Arrow x1={292} y1={96} x2={338} y2={96} />
-      <Box x={340} y={62} w={120} h={68} title="Agent" sub="LangGraph" accent />
+      <Arrow x1={106} y1={35} x2={158} y2={86} />
+      <Arrow x1={106} y1={75} x2={158} y2={94} />
+      <Arrow x1={106} y1={115} x2={158} y2={102} />
+      <Arrow x1={106} y1={155} x2={158} y2={110} />
 
-      <Arrow x1={400} y1={132} x2={400} y2={168} />
-      <line x1={310} y1={178} x2={600} y2={178} stroke={WARM} strokeWidth={1} strokeDasharray="4 4" />
-      <text x={310} y={172} fill={WARM} style={mono}>
-        NOTHING CROSSES WITHOUT A SIGNATURE
+      <Box x={160} y={72} w={112} h={56} title="Retrieval" sub="pgvector" />
+      <Arrow x1={274} y1={100} x2={316} y2={100} />
+      <Box x={318} y={72} w={112} h={56} title="Agent" sub="29 scoped tools" accent />
+      <text x={374} y={144} textAnchor="middle" fill={COLD} style={mono}>
+        reads everything
       </text>
-      <Box x={340} y={186} w={120} h={44} title="Review" sub="a person" />
 
-      <Arrow x1={462} y1={208} x2={488} y2={208} />
-      <Box x={490} y={186} w={110} h={44} title="Released" sub="record of truth" />
+      {/* The write path is the whole argument, so it gets the boundary. */}
+      <line x1={0} y1={196} x2={600} y2={196} stroke={WARM} strokeWidth={1} strokeDasharray="4 4" />
+      <text x={0} y={190} fill={WARM} style={mono}>
+        NO TOOL WRITES BELOW THIS LINE WITHOUT A NAME ON IT
+      </text>
 
-      <text x={408} y={156} fill={DIM} style={mono}>
-        drafts
+      <Arrow x1={374} y1={152} x2={374} y2={204} />
+      <rect x={160} y={206} width={150} height={58} rx={3} fill="color-mix(in srgb, var(--color-warm) 12%, transparent)" stroke={WARM} />
+      <text x={235} y={224} textAnchor="middle" fill={WARM} style={label}>
+        Approval inbox
+      </text>
+      <text x={235} y={240} textAnchor="middle" fill={FAINT} style={mono}>
+        dry-run field diff
+      </text>
+      <text x={235} y={256} textAnchor="middle" fill={FAINT} style={mono}>
+        role-gated
+      </text>
+
+      <Arrow x1={318} y1={100} x2={318} y2={100} />
+      <Arrow x1={158} y1={235} x2={120} y2={235} />
+      <Box x={0} y={210} w={118} h={50} title="Applied" sub="one transaction" />
+
+      <Arrow x1={312} y1={235} x2={348} y2={235} />
+      <Box x={350} y={210} w={128} h={50} title="Rejected" sub="note required" />
+      <text x={496} y={232} fill={DIM} style={mono}>
+        proposes
+      </text>
+      <text x={496} y={244} fill={DIM} style={mono}>
+        never applies
       </text>
     </Frame>
   );

@@ -53,8 +53,8 @@ export const PROFILE_DOCS: ProfileDoc[] = [
   },
   {
     ref: "PROJ-PDM",
-    title: "Agentic PDM, ECM and QMS toolchain",
-    text: "A toolchain that unifies product data management, engineering change management and quality management behind one interface. Built with FastAPI and LangGraph over PostgreSQL with pgvector and async SQLAlchemy 2. Product data, change requests and quality records previously lived in separate systems, so answering a question about a part meant opening three of them. The agent proposes a change against the combined record set, and a person approves it before anything reaches a released record. Human-in-the-loop approval is a requirement of the design rather than a setting. A public sandbox of it runs at agentic-enterprise-tool.vercel.app, seeded with invented records and no customer data; the production instance is not public.",
+    title: "The agentic enterprise toolchain",
+    text: "A toolchain putting eleven record domains behind one interface: PDM, ECM, QMS, procurement, CRM, controlling, programmes, assets, resources, knowledge and the agent surfaces themselves. Built with FastAPI and LangGraph over PostgreSQL with pgvector and async SQLAlchemy 2. The agent reads across all of it and writes none of it directly: a proposed change lands in an approval inbox with a dry-run field-level diff and waits for someone holding the required role, who approves it in one transaction under their own name. Prompt injection is handled structurally rather than by filtering, because no governance operation is registered as a tool, so an injected instruction to approve something has nothing to call. A public sandbox runs at agentic-enterprise-tool.vercel.app and signs you in on a seeded seat.",
   },
   {
     ref: "PROJ-COMPLIANCE",

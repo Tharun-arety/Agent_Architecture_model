@@ -12,6 +12,8 @@
  * If a number is not one I can point at, it does not go in.
  */
 
+import { PDM_CASE } from "@/components/site/pdm-case";
+
 export const REPO_URL = "https://github.com/Tharun-arety/Agent_Architecture_model";
 
 export type ProjectStatus = "prototype" | "live" | "in-progress";
@@ -62,72 +64,26 @@ const ENTRIES: Project[] = [
   {
     slug: "agentic-pdm-ecm-qms",
     index: "01",
-    title: "Agentic PDM, ECM and QMS toolchain",
+    title: "An agentic toolchain across eleven enterprise domains",
     summary:
-      "Product data, engineering change and quality management behind one interface, where an agent proposes changes and a person approves them.",
-    domain: "Manufacturing engineering data",
+      "PDM, ECM, QMS, procurement, controlling and six more behind one interface, where the agent reads everything and changes nothing without a named approval.",
+    domain: "Manufacturing engineering operations",
     status: "live",
     problem:
-      "Product data, change requests and quality records lived in separate systems, so answering a question about a part meant opening three of them and reconciling the answers by hand.",
+      "A failed test sample raises five questions at once, and each answer lives in a different system: which lot, which supplier, which units, what it costs to fix, and did anyone close the loop.",
     built: [
-      "A LangGraph and FastAPI service unifying product data, engineering change and quality management behind one queryable interface.",
-      "Retrieval over the combined record set with pgvector, and async SQLAlchemy against Postgres underneath it.",
-      "Human-in-the-loop approval on every agent-proposed change, so nothing reaches a released record without a person signing it off.",
+      "A LangGraph and FastAPI service putting eleven record domains behind one queryable interface, with pgvector retrieval and async SQLAlchemy over Postgres.",
+      "An approval inbox where every agent-proposed change waits with a field-level dry-run diff until someone holding the required role approves it, in one transaction, under their own name.",
+      "An offline eval suite running against a stub model client, asserting tool timeouts, domain isolation, injection resistance, the mutation invariant and a pinned token budget.",
     ],
     outcome:
-      "Change management runs against one set of data instead of three, and the agent drafts the change while a person keeps the decision.",
-    stack: ["FastAPI", "LangGraph", "PostgreSQL", "pgvector", "SQLAlchemy 2 async"],
+      "A supplier receipt now traces in eight recorded steps to a released, repriced change notice that hybrid search can cite, and no agent applied any of it unsupervised.",
+    stack: ["FastAPI", "LangGraph", "PostgreSQL", "pgvector", "SQLAlchemy 2 async", "Next.js"],
     liveUrl: "https://agentic-enterprise-tool.vercel.app/",
     liveLabel: "Open the sandbox",
     liveNote:
-      "A public sandbox of the same toolchain, seeded with invented records and no customer data. The production instance is not mine to publish.",
-    caseStudy: {
-      context: [
-        "A manufacturer's engineering record is not one thing. The bill of materials and part revisions sit in PDM. The requests to change them sit in ECM. The inspection results, non-conformances and corrective actions that justify a change sit in QMS. Each system is reasonable on its own, and each was bought to solve its own problem.",
-        "The cost shows up in the questions that cross them. Why did this part revision change, and did the quality issue that triggered it ever get closed? Answering that means opening three systems, matching identifiers that do not agree, and trusting whoever did the matching. It is slow, and it is the kind of slow that makes people stop asking.",
-        "Replacing all three was never the goal. They hold the records of truth and they are not going anywhere. What was missing was something that could reach across them.",
-      ],
-      architecture: [
-        "A FastAPI service sits in front of all three record sets, with LangGraph holding the workflow. The graph shape matters here: an engineering change is not a single question and answer, it is a sequence with branches and a point where it stops and waits for a person.",
-        "Retrieval runs over the combined record set with pgvector, so a question about a part reaches its BOM position, the changes that touched it and the quality findings that reference it, without the asker knowing which system holds which. Postgres and async SQLAlchemy sit underneath.",
-        "The approval gate is what makes it deployable. The agent drafts a change against the combined record and stops. Nothing reaches a released record until a person signs it off, so the failure mode of a wrong draft is wasted review time rather than a corrupted engineering record.",
-      ],
-      sections: [
-        {
-          title: "Why a graph and not a loop",
-          body: [
-            "An engineering change has states. It is drafted, it is reviewed, it is approved or sent back, and each of those can branch on what the quality record says. A single tool-calling loop can be made to imitate that, but the state ends up implicit in the conversation, which means it cannot be inspected or resumed.",
-            "LangGraph makes the states explicit. The workflow can pause at the approval node for as long as the reviewer takes, and pick up where it stopped.",
-          ],
-        },
-        {
-          title: "Human-in-the-loop as a requirement, not a setting",
-          body: [
-            "Approval is not a configuration flag that can be turned off for throughput. It is a node in the graph that the path to a released record has to pass through.",
-            "That is a deliberate constraint on what the agent is allowed to be. It removes the most impressive-sounding claim, that the system changes records by itself, and it is the reason the system can be run against real engineering data at all.",
-          ],
-        },
-        {
-          title: "What retrieval has to bridge",
-          body: [
-            "The three systems do not use the same identifiers, and their text is written by different people for different readers. A quality finding describes a symptom. A change request describes an intent. A BOM entry describes neither.",
-            "Retrieval over the combined set has to bridge that, which is why it is embedding-based rather than a join. A join needs the identifiers to agree. Retrieval only needs the language to overlap.",
-          ],
-        },
-      ],
-      results: [
-        {
-          value: "3 to 1",
-          label: "Systems to open",
-          note: "A question that crosses PDM, ECM and QMS is answered from one interface.",
-        },
-        {
-          value: "Every one",
-          label: "Changes reviewed by a person",
-          note: "The approval node is on the only path to a released record.",
-        },
-      ],
-    },
+      "Signs you straight in on a seeded seat, no account needed. Records are invented and contain no customer data. The production instance is not mine to publish.",
+    caseStudy: PDM_CASE,
   },
   {
     slug: "grounded-engineering-agent",
